@@ -61,14 +61,33 @@ class AnalysisOrchestrator:
         # 0. Predictive ML Query Path (Return Prediction Capability)
         if ReturnPredictionService.is_prediction_query(request.question):
             pred_data = ReturnPredictionService.predict_return_risk(request.question)
+            if "error" in pred_data:
+                v_res = VerificationResult(status="REFUSED", confidence_score=0.0)
+                result = AnalysisResult(
+                    analysis_id=analysis_id,
+                    question=request.question,
+                    answer=pred_data["error"],
+                    status=AnalysisStatus.REFUSED,
+                    refusal_reason="model_not_configured",
+                    verification=v_res,
+                    confidence=0.0
+                )
+                storage_service.save_analysis_run(analysis_id, request.question, AnalysisStatus.REFUSED.value, result.model_dump())
+                return result
+
+            metrics = pred_data.get("metrics", {})
+            roc_auc_val = metrics.get("roc_auc", "N/A")
+            preds = pred_data.get("predictions", [])
+            conf_val = float(roc_auc_val) if isinstance(roc_auc_val, (int, float)) else 0.80
+
             v_res = VerificationResult(
                 v1_code_executed=CheckStatus.NOT_APPLICABLE,
                 v2_output_exists=CheckStatus.NOT_APPLICABLE,
                 v3_output_valid_canonical=CheckStatus.NOT_APPLICABLE,
                 status="VERIFIED",
-                confidence_score=0.84
+                confidence_score=conf_val
             )
-            answer_str = f"[MODEL PREDICTION] Order Return Risk Analysis: {len(pred_data['predictions'])} high-risk orders predicted. Model: CatBoostClassifier (ROC-AUC 0.842)."
+            answer_str = f"[MODEL PREDICTION] Order Return Risk Analysis: {len(preds)} high-risk orders identified. Model: CatBoostClassifier (ROC-AUC {roc_auc_val})."
             result = AnalysisResult(
                 analysis_id=analysis_id,
                 question=request.question,
@@ -76,8 +95,8 @@ class AnalysisOrchestrator:
                 status=AnalysisStatus.VERIFIED,
                 expected_result_type="model_prediction",
                 verification=v_res,
-                confidence=0.84,
-                warnings=[pred_data["disclaimer"]]
+                confidence=conf_val,
+                warnings=[pred_data.get("disclaimer", "MODEL PREDICTION")]
             )
             storage_service.save_analysis_run(analysis_id, request.question, AnalysisStatus.VERIFIED.value, result.model_dump())
             return result

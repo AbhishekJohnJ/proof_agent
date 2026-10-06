@@ -131,6 +131,32 @@ def test_kaggle_missing_profit_refusal(kaggle_datasets):
     assert res.status == AnalysisStatus.REFUSED
     assert res.refusal_reason == "insufficient_data"
 
+def test_kaggle_return_prediction_ml_artifacts_and_inference(kaggle_datasets):
+    cbm_path = Path("models/return_prediction_model.cbm")
+    meta_path = Path("models/return_prediction_metadata.json")
+    assert cbm_path.exists(), "models/return_prediction_model.cbm should exist."
+    assert meta_path.exists(), "models/return_prediction_metadata.json should exist."
+
+    with open(meta_path, "r") as f:
+        meta = json.load(f)
+    assert meta["model_name"] == "return_prediction_model"
+    assert "metrics" in meta
+    assert "feature_names" in meta
+
+    from backend.ml.features import FORBIDDEN_LEAKAGE_COLUMNS
+    for col in meta["feature_names"]:
+        assert col not in FORBIDDEN_LEAKAGE_COLUMNS, f"FORBIDDEN LEAKAGE COLUMN {col} in model features!"
+
+    from backend.ml.return_prediction import ReturnPredictionService
+    pred_res = ReturnPredictionService.predict_return_risk("Which orders are most likely to be returned?")
+    assert pred_res.get("label") == "MODEL PREDICTION"
+    assert "predictions" in pred_res
+    assert len(pred_res["predictions"]) > 0
+
+    for item in pred_res["predictions"]:
+        prob = item["predicted_return_prob"]
+        assert 0.0 <= prob <= 1.0, f"Probability {prob} out of bounds [0, 1]"
+
 def test_kaggle_return_prediction_ml(kaggle_datasets):
     orchestrator = get_orchestrator()
     req = AnalysisRequest(

@@ -1,0 +1,67 @@
+{
+  "model_name": "return_prediction_model",
+  "model_type": "CatBoostClassifier",
+  "training_dataset": "Indian E-Commerce Sales & Customer Analytics (orders.csv + returns.csv)",
+  "training_timestamp": "2026-10-06T21:56:11.361281",
+  "feature_names": [
+    "discount_percentage",
+    "final_amount",
+    "subtotal",
+    "shipping_fee",
+    "tax_amount",
+    "customer_segment",
+    "gender",
+    "age",
+    "state",
+    "shipping_method",
+    "marketing_channel",
+    "category",
+    "price",
+    "rating_average",
+    "stock_quantity",
+    "product_type"
+  ],
+  "categorical_features": [
+    "customer_segment",
+    "gender",
+    "state",
+    "shipping_method",
+    "marketing_channel",
+    "category",
+    "product_type"
+  ],
+  "target": "is_returned",
+  "train_rows": 80000,
+  "test_rows": 20000,
+  "metrics": {
+    "accuracy": 0.5708,
+    "precision": 0.1057,
+    "recall": 0.4711,
+    "f1_score": 0.1727,
+    "roc_auc": 0.5331,
+    "confusion_matrix": [
+      [
+        10520,
+        7578
+      ],
+      [
+        1006,
+        896
+      ]
+    ]
+  },
+  "random_seed": 42,
+  "model_version": "1.0.0",
+  "forbidden_features_excluded": [
+    "return_id",
+    "return_date",
+    "return_reason",
+    "return_status",
+    "refund_amount",
+    "is_returned",
+    "actual_delivery_date",
+    "delivery_days",
+    "delivery_status",
+    "delayed_flag"
+  ]
+}

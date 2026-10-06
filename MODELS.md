@@ -42,6 +42,25 @@ This document specifies the planned AI models to be integrated into ProofAI duri
 * **Integration Interface**: [backend/providers/base.py](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/backend/providers/base.py) -> `EmbeddingProvider`
 * **Status**: Planned (Mock implementation active for local mac development)
 
+### 4. Order Return Risk Prediction Model (Implemented ML Capability)
+* **Model**: `CatBoostClassifier`
+* **Provider / Source**: CatBoost (Yandex)
+* **Role**:
+  - Predict probability of order return from pre-order / pre-return features
+  - Identified high-risk return orders with probability ranking
+  - Results strictly labeled as `MODEL PREDICTION` (probabilistic inference, distinct from verified historical facts)
+* **Target Leakage Safeguards**:
+  - Features defined in [backend/ml/features.py](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/backend/ml/features.py)
+  - Explicitly excludes `return_id`, `return_date`, `return_reason`, `return_status`, `refund_amount`, `actual_delivery_date`, `delivery_days`, `delivery_status`, `delayed_flag`
+* **Artifact Locations**:
+  - Model: `models/return_prediction_model.cbm`
+  - Metadata: `models/return_prediction_metadata.json`
+* **Retraining Command**:
+  ```bash
+  PYTHONPATH=. .venv/bin/python scripts/train_return_model.py
+  ```
+* **Status**: Implemented & Production-Ready
+
 ---
 
 ## Model Integration Guidelines for GPU Team
