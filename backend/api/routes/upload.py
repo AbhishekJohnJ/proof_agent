@@ -9,24 +9,21 @@ from backend.documents.extractor import DocumentExtractor
 from backend.documents.chunker import DocumentChunker
 from backend.documents.metadata import MetadataExtractor
 from backend.services.storage import storage_service
-from backend.rag.vector_store import SimpleVectorStore
+from backend.rag.vector_store import global_vector_store
 from backend.rag.embeddings import EmbeddingService
 from backend.providers.factory import ProviderFactory
 
 router = APIRouter(tags=["Upload"])
 
-# Shared global vector store & embedding service
 embedding_provider = ProviderFactory.get_embedding_provider()
 embedding_service = EmbeddingService(embedding_provider)
-vector_store = SimpleVectorStore()
 
-# Rebuild vector store from persisted document chunks if any
 def rebuild_vector_index():
     for doc in storage_service.list_documents():
         chunks = storage_service.get_document_chunks(doc.document_id)
         if chunks:
             embeddings = embedding_service.embed_chunks([c.text for c in chunks])
-            vector_store.add_chunks(chunks, embeddings)
+            global_vector_store.add_chunks(chunks, embeddings)
 
 rebuild_vector_index()
 
@@ -72,7 +69,7 @@ async def upload_file(file: UploadFile = File(...)):
             # Embed and index document chunks into RAG Vector Store
             if chunks:
                 embeddings = embedding_service.embed_chunks([c.text for c in chunks])
-                vector_store.add_chunks(chunks, embeddings)
+                global_vector_store.add_chunks(chunks, embeddings)
 
             return {
                 "type": "document",

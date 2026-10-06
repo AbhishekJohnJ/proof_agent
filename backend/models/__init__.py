@@ -2,6 +2,7 @@ from backend.models.dataset import DatasetMetadata, DatasetProfile, ColumnProfil
 from backend.models.document import DocumentMetadata, DocumentChunk
 from backend.models.query import AnalysisRequest
 from backend.models.analysis import AnalysisPlan, AnalysisResult, AnalysisStatus, CanonicalResult
+from backend.models.analysis_contract import AnalysisContract, ContractOperation
 from backend.models.evidence import EvidenceItem, EvidenceCollection, EvidenceType
 from backend.models.verification import VerificationResult, CheckStatus
 
@@ -19,6 +20,8 @@ __all__ = [
     "AnalysisResult",
     "AnalysisStatus",
     "CanonicalResult",
+    "AnalysisContract",
+    "ContractOperation",
     "EvidenceItem",
     "EvidenceCollection",
     "EvidenceType",

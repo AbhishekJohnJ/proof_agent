@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from backend.execution.limits import ExecutionLimits
 from backend.models.dataset import DatasetArtifact
-from backend.config import settings
 
 class SandboxExecutionEnvironment(ABC):
     """Abstract sandbox environment interface."""
@@ -95,7 +94,7 @@ class LocalIsolatedSandbox(SandboxExecutionEnvironment):
                 }
 
 class DockerSandbox(SandboxExecutionEnvironment):
-    """Production hardened Docker sandbox environment with network disabled, non-root user, and resource caps."""
+    """Production hardened Docker sandbox environment. NO SILENT FALLBACK to host execution when unavailable."""
 
     def __init__(self, limits: ExecutionLimits | None = None, docker_image: str = "proofai-sandbox:latest"):
         self.limits = limits or ExecutionLimits()
@@ -160,5 +159,14 @@ class DockerSandbox(SandboxExecutionEnvironment):
                     "execution_mode": "docker_sandbox",
                     "error": None if res.returncode == 0 else stderr
                 }
-            except Exception:
-                return LocalIsolatedSandbox(self.limits).execute(code, datasets)
+            except Exception as e:
+                # Docker is unavailable - NO SILENT FALLBACK to host!
+                return {
+                    "success": False,
+                    "returncode": -1,
+                    "stdout": "",
+                    "stderr": f"Docker sandbox unavailable: {str(e)}",
+                    "parsed_output": None,
+                    "execution_mode": "docker_unavailable",
+                    "error": "sandbox_unavailable"
+                }

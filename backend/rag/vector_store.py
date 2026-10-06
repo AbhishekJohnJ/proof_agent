@@ -1,9 +1,9 @@
 import numpy as np
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Optional
 from backend.models.document import DocumentChunk
 
 class SimpleVectorStore:
-    """In-memory cosine similarity vector store for document chunks."""
+    """In-memory cosine similarity vector store with strict document ID filtering."""
 
     def __init__(self):
         self.chunks: List[DocumentChunk] = []
@@ -18,7 +18,12 @@ class SimpleVectorStore:
                 vec = vec / norm
             self.embeddings.append(vec)
 
-    def search(self, query_embedding: List[float], top_k: int = 5) -> List[Tuple[DocumentChunk, float]]:
+    def search(
+        self,
+        query_embedding: List[float],
+        selected_document_ids: Optional[List[str]] = None,
+        top_k: int = 5
+    ) -> List[Tuple[DocumentChunk, float]]:
         if not self.embeddings:
             return []
 
@@ -28,10 +33,20 @@ class SimpleVectorStore:
             q_vec = q_vec / q_norm
 
         scores = [float(np.dot(q_vec, emb)) for emb in self.embeddings]
-        indexed_scores = list(enumerate(scores))
-        indexed_scores.sort(key=lambda x: x[1], reverse=True)
-
+        
         results = []
-        for idx, score in indexed_scores[:top_k]:
-            results.append((self.chunks[idx], score))
-        return results
+        for idx, score in enumerate(scores):
+            chunk = self.chunks[idx]
+
+            # Strict document scoping filter
+            if selected_document_ids and len(selected_document_ids) > 0:
+                if chunk.document_id not in selected_document_ids:
+                    continue
+
+            results.append((chunk, score))
+
+        results.sort(key=lambda x: x[1], reverse=True)
+        return results[:top_k]
+
+# Global vector store instance
+global_vector_store = SimpleVectorStore()

@@ -9,6 +9,22 @@ class CheckStatus(str, Enum):
     NOT_APPLICABLE = "NOT_APPLICABLE"
 
 class VerificationResult(BaseModel):
+    # V1 to V13 Checks
+    v1_code_executed: CheckStatus = CheckStatus.NOT_CHECKED
+    v2_output_exists: CheckStatus = CheckStatus.NOT_CHECKED
+    v3_output_valid_canonical: CheckStatus = CheckStatus.NOT_CHECKED
+    v4_result_type_matched: CheckStatus = CheckStatus.NOT_CHECKED
+    v5_result_finite_valid: CheckStatus = CheckStatus.NOT_CHECKED
+    v6_reproducible: CheckStatus = CheckStatus.NOT_CHECKED
+    v7_required_datasets_used: CheckStatus = CheckStatus.NOT_CHECKED
+    v8_required_columns_used: CheckStatus = CheckStatus.NOT_CHECKED
+    v9_expected_operation_reflected: CheckStatus = CheckStatus.NOT_CHECKED
+    v10_final_answer_consistent: CheckStatus = CheckStatus.NOT_CHECKED
+    v11_unit_matched: CheckStatus = CheckStatus.NOT_CHECKED
+    v12_quality_requirements_satisfied: CheckStatus = CheckStatus.NOT_CHECKED
+    v13_evidence_sources_matched: CheckStatus = CheckStatus.NOT_CHECKED
+
+    # Legacy compatibility fields
     executed: CheckStatus = CheckStatus.NOT_CHECKED
     execution_success: CheckStatus = CheckStatus.NOT_CHECKED
     output_present: CheckStatus = CheckStatus.NOT_CHECKED

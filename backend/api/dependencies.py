@@ -4,11 +4,10 @@ from backend.agents.analyst import DataAnalystAgent
 from backend.agents.document_agent import DocumentAgent
 from backend.codegen.generator import CodeGeneratorService
 from backend.execution.sandbox import LocalIsolatedSandbox, DockerSandbox
-from backend.rag.vector_store import SimpleVectorStore
+from backend.rag.vector_store import global_vector_store
 from backend.rag.embeddings import EmbeddingService
 from backend.rag.retriever import DocumentRetriever
 from backend.agents.orchestrator import AnalysisOrchestrator
-from backend.api.routes.upload import vector_store
 from backend.config import settings
 
 def get_orchestrator() -> AnalysisOrchestrator:
@@ -20,15 +19,13 @@ def get_orchestrator() -> AnalysisOrchestrator:
     analyst = DataAnalystAgent(llm_provider=llm)
     code_service = CodeGeneratorService(provider=code_gen)
 
-    # Sandbox selection based on configuration
     if settings.SANDBOX_ENABLED:
         sandbox = DockerSandbox()
     else:
         sandbox = LocalIsolatedSandbox()
 
-    # RAG Retriever & Document Agent
     emb_service = EmbeddingService(embedding_provider)
-    retriever = DocumentRetriever(vector_store, emb_service)
+    retriever = DocumentRetriever(global_vector_store, emb_service)
     doc_agent = DocumentAgent(retriever)
 
     return AnalysisOrchestrator(
