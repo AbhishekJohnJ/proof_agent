@@ -1,9 +1,9 @@
-from backend.models.dataset import DatasetMetadata, DatasetProfile, ColumnProfile, QualityWarning, CandidateRelationship
+from backend.models.dataset import DatasetMetadata, DatasetProfile, ColumnProfile, QualityWarning, CandidateRelationship, DatasetArtifact
 from backend.models.document import DocumentMetadata, DocumentChunk
 from backend.models.query import AnalysisRequest
-from backend.models.analysis import AnalysisPlan, AnalysisResult
+from backend.models.analysis import AnalysisPlan, AnalysisResult, AnalysisStatus, CanonicalResult
 from backend.models.evidence import EvidenceItem, EvidenceCollection, EvidenceType
-from backend.models.verification import VerificationResult
+from backend.models.verification import VerificationResult, CheckStatus
 
 __all__ = [
     "DatasetMetadata",
@@ -11,13 +11,17 @@ __all__ = [
     "ColumnProfile",
     "QualityWarning",
     "CandidateRelationship",
+    "DatasetArtifact",
     "DocumentMetadata",
     "DocumentChunk",
     "AnalysisRequest",
     "AnalysisPlan",
     "AnalysisResult",
+    "AnalysisStatus",
+    "CanonicalResult",
     "EvidenceItem",
     "EvidenceCollection",
     "EvidenceType",
     "VerificationResult",
+    "CheckStatus",
 ]

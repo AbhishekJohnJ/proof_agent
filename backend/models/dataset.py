@@ -1,9 +1,10 @@
 from typing import Any, Optional
+from pathlib import Path
 from pydantic import BaseModel, Field
 
 class QualityWarning(BaseModel):
     severity: str = Field(..., description="warning | critical | info")
-    type: str = Field(..., description="mixed_currency | missing_values | duplicate_rows | ambiguous_date | schema_anomaly")
+    type: str = Field(..., description="mixed_currency | missing_values | duplicate_rows | ambiguous_date | schema_anomaly | constant_column | duplicate_candidate_id")
     message: str
     affected_columns: list[str] = Field(default_factory=list)
 
@@ -47,5 +48,14 @@ class DatasetMetadata(BaseModel):
     columns: int
     file_size_bytes: int
     created_at: str
-    status: str = "success"  # success | error
+    status: str = "success"
     error_message: Optional[str] = None
+
+class DatasetArtifact(BaseModel):
+    dataset_id: str
+    filename: str
+    file_path: str
+    workspace_path: str
+    file_type: str
+    profile: DatasetProfile
+    metadata: DatasetMetadata

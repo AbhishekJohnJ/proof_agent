@@ -13,3 +13,10 @@ def get_document(document_id: str):
     if not meta:
         raise HTTPException(status_code=404, detail="Document not found.")
     return meta
+
+@router.get("/{document_id}/chunks")
+def get_document_chunks(document_id: str):
+    chunks = storage_service.get_document_chunks(document_id)
+    if not chunks:
+        raise HTTPException(status_code=404, detail="No chunks found for document.")
+    return [c.model_dump() for c in chunks]

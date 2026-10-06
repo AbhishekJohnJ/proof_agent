@@ -1,11 +1,19 @@
 # ProofAI — Hackathon Development Roadmap
 
-* **PHASE 0**: Planning & Documentation (Completed)
-* **PHASE 1**: Model-Independent Foundation (Completed)
-* **PHASE 2**: Data Ingestion & Quality Engine (Completed)
-* **PHASE 3**: Provider Abstractions & Mocks (Completed)
-* **PHASE 4**: Execution Sandbox & Security (Completed)
-* **PHASE 5**: Verification Engine & Evidence Accumulator (Completed)
-* **PHASE 6**: Qwen3 & DeepSeek GPU Model Integration (Pending GPU Team)
-* **PHASE 7**: Full RAG & Document Intelligence (Pending GPU Team)
-* **PHASE 8**: Benchmark Evaluation & Demo Preparation (Pending GPU Team)
+* **PHASE 0 — Planning & Specification**
+  - COMPLETED
+
+* **PHASE 1 — Model-Independent Foundation**
+  - COMPLETED
+
+* **PHASE 1.5 — Functional Foundation Hardening**
+  - COMPLETED (Hardened status transitions, dataset artifact scoping, AST allowlisting, SQLite persistence, RAG vector indexing, DockerSandbox, multi-dataset UI selection, end-to-end test suite)
+
+* **PHASE 2 — Model Integration (GPU Team)**
+  - PENDING (Qwen3-4B-Instruct, DeepSeek-Coder-V2-Lite, Qwen3-Embedding)
+
+* **PHASE 3 — Full RAG & Hybrid Reasoning**
+  - PENDING
+
+* **PHASE 4 — Benchmark & Hackathon Demo Submission**
+  - PENDING

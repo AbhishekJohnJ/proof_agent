@@ -5,40 +5,66 @@ import { FileUpload } from '@/components/FileUpload/FileUpload';
 import { DatasetProfileView } from '@/components/DatasetProfile/DatasetProfileView';
 import { QueryInput } from '@/components/QueryInput/QueryInput';
 import { AnalysisResultView } from '@/components/AnalysisResult/AnalysisResultView';
-import { fetchDatasets, fetchDatasetProfile, submitQuery } from '@/services/api';
-import { DatasetProfile, AnalysisResultData } from '@/types';
+import { fetchDatasets, fetchDatasetProfile, fetchDocuments, submitQuery } from '@/services/api';
+import { DatasetProfile, DocumentMetadata, AnalysisResultData } from '@/types';
 
 export default function Home() {
   const [datasets, setDatasets] = useState<any[]>([]);
+  const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
+  const [selectedDatasetIds, setSelectedDatasetIds] = useState<string[]>([]);
+  const [selectedDocumentIds, setSelectedDocumentIds] = useState<string[]>([]);
+  
   const [activeProfile, setActiveProfile] = useState<DatasetProfile | null>(null);
-  const [selectedDatasetId, setSelectedDatasetId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResultData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadDatasets = async () => {
+  const loadWorkspace = async () => {
     try {
       const dsList = await fetchDatasets();
       setDatasets(dsList);
-      if (dsList.length > 0 && !selectedDatasetId) {
-        setSelectedDatasetId(dsList[0].dataset_id);
+      if (dsList.length > 0 && selectedDatasetIds.length === 0) {
+        setSelectedDatasetIds([dsList[0].dataset_id]);
         const profile = await fetchDatasetProfile(dsList[0].dataset_id);
         setActiveProfile(profile);
       }
+
+      const docList = await fetchDocuments();
+      setDocuments(docList);
     } catch (err) {
       console.error(err);
     }
   };
 
   useEffect(() => {
-    loadDatasets();
+    loadWorkspace();
   }, []);
 
   const handleUploadSuccess = async (uploadRes: any) => {
+    await loadWorkspace();
     if (uploadRes.type === 'dataset') {
-      await loadDatasets();
-      setSelectedDatasetId(uploadRes.id);
+      setSelectedDatasetIds((prev) => [...new Set([...prev, uploadRes.id])]);
       setActiveProfile(uploadRes.profile);
+    } else if (uploadRes.type === 'document') {
+      setSelectedDocumentIds((prev) => [...new Set([...prev, uploadRes.id])]);
+    }
+  };
+
+  const toggleDatasetSelection = async (dsId: string) => {
+    if (selectedDatasetIds.includes(dsId)) {
+      setSelectedDatasetIds(selectedDatasetIds.filter((id) => id !== dsId));
+    } else {
+      setSelectedDatasetIds([...selectedDatasetIds, dsId]);
+      const prof = await fetchDatasetProfile(dsId);
+      setActiveProfile(prof);
+    }
+  };
+
+  const toggleDocumentSelection = (docId: string) => {
+    if (selectedDocumentIds.includes(docId)) {
+      setSelectedDocumentIds(selectedDocumentIds.filter((id) => id !== docId));
+    } else {
+      setSelectedDocumentIds([...selectedDocumentIds, docId]);
     }
   };
 
@@ -46,8 +72,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const selectedDs = selectedDatasetId ? [selectedDatasetId] : datasets.map((d) => d.dataset_id);
-      const res = await submitQuery(question, selectedDs, []);
+      const res = await submitQuery(question, selectedDatasetIds, selectedDocumentIds);
       setAnalysisResult(res);
     } catch (err: any) {
       setError(err.message || 'Analysis request failed');
@@ -73,14 +98,15 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Upload & Workspace Grid */}
+        {/* Workspace Grid */}
         <div className="grid md:grid-cols-3 gap-6">
           <div className="md:col-span-1 space-y-4">
-            <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Data Ingestion</h2>
+            <h2 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Data & Document Ingestion</h2>
             <FileUpload onUploadSuccess={handleUploadSuccess} />
 
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4">
-              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Uploaded Datasets</h3>
+            {/* Datasets Multi-Select List */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2">
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tabular Datasets</h3>
               {datasets.length === 0 ? (
                 <p className="text-xs text-slate-500 italic">No datasets uploaded yet.</p>
               ) : (
@@ -88,16 +114,50 @@ export default function Home() {
                   {datasets.map((ds) => (
                     <li
                       key={ds.dataset_id}
-                      onClick={async () => {
-                        setSelectedDatasetId(ds.dataset_id);
-                        const prof = await fetchDatasetProfile(ds.dataset_id);
-                        setActiveProfile(prof);
-                      }}
-                      className={`p-2 rounded cursor-pointer transition-colors ${
-                        selectedDatasetId === ds.dataset_id ? 'bg-indigo-900/50 text-indigo-300 font-semibold' : 'hover:bg-slate-800 text-slate-300'
-                      }`}
+                      className="flex items-center gap-2 p-2 rounded hover:bg-slate-800 text-slate-300"
                     >
-                      📄 {ds.filename} ({ds.rows} rows)
+                      <input
+                        type="checkbox"
+                        checked={selectedDatasetIds.includes(ds.dataset_id)}
+                        onChange={() => toggleDatasetSelection(ds.dataset_id)}
+                        className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+                      />
+                      <span
+                        onClick={async () => {
+                          const prof = await fetchDatasetProfile(ds.dataset_id);
+                          setActiveProfile(prof);
+                        }}
+                        className="cursor-pointer truncate flex-1 hover:text-indigo-300"
+                      >
+                        📄 {ds.filename} ({ds.rows} rows)
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Documents Multi-Select List */}
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-2">
+              <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Supporting Documents</h3>
+              {documents.length === 0 ? (
+                <p className="text-xs text-slate-500 italic">No documents uploaded yet.</p>
+              ) : (
+                <ul className="space-y-1 font-mono text-xs">
+                  {documents.map((doc) => (
+                    <li
+                      key={doc.document_id}
+                      className="flex items-center gap-2 p-2 rounded hover:bg-slate-800 text-slate-300"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedDocumentIds.includes(doc.document_id)}
+                        onChange={() => toggleDocumentSelection(doc.document_id)}
+                        className="rounded border-slate-700 bg-slate-950 text-indigo-600 focus:ring-0"
+                      />
+                      <span className="truncate flex-1">
+                        📑 {doc.filename} ({doc.page_count} pg, {doc.chunk_count} chk)
+                      </span>
                     </li>
                   ))}
                 </ul>

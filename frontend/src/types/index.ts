@@ -29,18 +29,35 @@ export interface DatasetProfile {
   quality_warnings: QualityWarning[];
 }
 
+export interface DocumentMetadata {
+  document_id: string;
+  filename: string;
+  file_type: string;
+  page_count: number;
+  chunk_count: number;
+  file_size_bytes: number;
+  created_at: string;
+  status: string;
+}
+
+export type CheckStatus = 'PASS' | 'FAIL' | 'NOT_CHECKED' | 'NOT_APPLICABLE';
+
 export interface VerificationResult {
-  executed: boolean;
-  execution_success: boolean;
-  output_present: boolean;
-  output_valid: boolean;
-  reproducible: boolean;
-  datasets_used: string[];
-  filters_verified: boolean;
-  data_quality_checked: boolean;
-  answer_matches_output: boolean;
-  status: 'verified' | 'unverified' | 'failed' | 'refused';
+  executed: CheckStatus;
+  execution_success: CheckStatus;
+  output_present: CheckStatus;
+  output_valid: CheckStatus;
+  expected_type_matched: CheckStatus;
+  reproducible: CheckStatus;
+  selected_datasets_used: CheckStatus;
+  result_consistent: CheckStatus;
+  quality_check_performed: boolean;
+  quality_issues_found: boolean;
+  critical_quality_issues: boolean;
+  status: 'VERIFIED' | 'VERIFICATION_FAILED' | 'REFUSED' | 'UNVERIFIED';
   confidence_score: number;
+  comparison_method: string;
+  numeric_tolerance_difference: number;
   errors: string[];
   warnings: string[];
 }
@@ -60,13 +77,19 @@ export interface AnalysisResultData {
   analysis_id: string;
   question: string;
   answer: string;
-  status: 'success' | 'refused' | 'error' | 'model_not_configured' | 'execution_failed';
+  status: 'RECEIVED' | 'PLANNED' | 'CODE_GENERATED' | 'CODE_VALIDATED' | 'EXECUTING' | 'EXECUTION_FAILED' | 'VERIFYING' | 'VERIFIED' | 'VERIFICATION_FAILED' | 'REFUSED' | 'MODEL_NOT_CONFIGURED';
   code?: string;
   expected_result_type?: string;
   execution_result?: Record<string, any>;
+  canonical_result?: {
+    result: any;
+    metric: string;
+    unit?: string;
+  };
   evidence: EvidenceItem[];
   verification?: VerificationResult;
   confidence: number;
   refusal_reason?: string;
   warnings: string[];
+  error_message?: string;
 }

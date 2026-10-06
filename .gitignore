@@ -45,6 +45,8 @@ runtime/
 *.sqlite3
 *.db
 *.log
+datasets/up_*
+documents/up_*
 
 # Models & Large Data
 *.bin

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { VerificationResult } from '@/types';
+import { VerificationResult, CheckStatus } from '@/types';
 
 interface VerificationBadgeProps {
   verification?: VerificationResult;
@@ -16,25 +16,49 @@ export const VerificationBadge: React.FC<VerificationBadgeProps> = ({ verificati
     );
   }
 
-  const isVerified = verification.status === 'verified';
-  const isRefused = verification.status === 'refused';
+  const isVerified = verification.status === 'VERIFIED';
+  const isRefused = verification.status === 'REFUSED';
+
+  const renderCheckIcon = (status?: CheckStatus) => {
+    if (status === 'PASS') return <span className="text-emerald-400 font-bold">✓ PASS</span>;
+    if (status === 'FAIL') return <span className="text-rose-400 font-bold">✗ FAIL</span>;
+    if (status === 'NOT_APPLICABLE') return <span className="text-slate-500">N/A</span>;
+    return <span className="text-slate-500">NOT CHECKED</span>;
+  };
 
   return (
-    <div className="flex items-center gap-3">
-      <span
-        className={`px-3 py-1 text-xs font-bold rounded-full border ${
-          isVerified
-            ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-            : isRefused
-            ? 'bg-amber-950 text-amber-400 border-amber-800'
-            : 'bg-rose-950 text-rose-400 border-rose-800'
-        }`}
-      >
-        {isVerified ? '✓ PROVEN & VERIFIED' : isRefused ? '✋ REFUSED' : '❌ VERIFICATION FAILED'}
-      </span>
-      <span className="text-xs text-slate-400 font-mono">
-        Confidence Score: <strong className="text-white">{(verification.confidence_score * 100).toFixed(0)}%</strong>
-      </span>
+    <div className="bg-slate-950/80 border border-slate-800 rounded-xl p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <span
+          className={`px-3 py-1 text-xs font-bold rounded-full border ${
+            isVerified
+              ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+              : isRefused
+              ? 'bg-amber-950 text-amber-400 border-amber-800'
+              : 'bg-rose-950 text-rose-400 border-rose-800'
+          }`}
+        >
+          {isVerified ? '✓ PROVEN & VERIFIED' : isRefused ? '✋ REFUSED' : '❌ VERIFICATION FAILED'}
+        </span>
+        <span className="text-xs text-slate-400 font-mono">
+          Confidence Score: <strong className="text-white">{(verification.confidence_score * 100).toFixed(0)}%</strong>
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-slate-900/60 p-3 rounded-lg border border-slate-850">
+        <div>Execution: {renderCheckIcon(verification.execution_success)}</div>
+        <div>Output Valid: {renderCheckIcon(verification.output_valid)}</div>
+        <div>Reproducible: {renderCheckIcon(verification.reproducible)}</div>
+        <div>Datasets Used: {renderCheckIcon(verification.selected_datasets_used)}</div>
+      </div>
+
+      {verification.errors.length > 0 && (
+        <div className="text-xs text-rose-400 bg-rose-950/40 border border-rose-900/60 p-2 rounded">
+          {verification.errors.map((err, i) => (
+            <p key={i}>• {err}</p>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

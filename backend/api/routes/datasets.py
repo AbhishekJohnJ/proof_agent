@@ -28,3 +28,10 @@ def get_dataset_profile(dataset_id: str):
     if not profile:
         raise HTTPException(status_code=404, detail="Dataset profile not found.")
     return profile
+
+@router.get("/{dataset_id}/artifact")
+def get_dataset_artifact(dataset_id: str):
+    artifact = storage_service.get_dataset_artifact(dataset_id)
+    if not artifact:
+        raise HTTPException(status_code=404, detail="Dataset artifact not found.")
+    return artifact.model_dump()
