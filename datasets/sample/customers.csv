@@ -1,0 +1,6 @@
+customer_id,name,region,signup_date,tier
+CUST-001,Alice Smith,North,2023-01-15,Premium
+CUST-002,Bob Jones,South,2023-03-22,Basic
+CUST-003,Charlie Brown,East,2023-05-10,Enterprise
+CUST-004,Diana Prince,West,2023-07-04,Premium
+CUST-005,Evan Wright,North,2023-09-18,Basic

@@ -1,0 +1,7 @@
+GlobalCorp Data Governance & Analytical Audit Policy
+
+Section 1: Numerical Proof Requirement
+All internal financial reports and analytical submissions must be accompanied by re-runnable, deterministic computational code. Unverified manual spreadsheets or ungrounded LLM summaries are strictly prohibited from executive presentations.
+
+Section 2: Currency Standardization
+All transactions must be explicitly converted to USD at the prevailing central bank exchange rate on the transaction date before aggregation.

@@ -1,0 +1,7 @@
+transaction_id,date,region,category,revenue,units_sold
+TX-1001,2024-01-05,North,Electronics,1500.00,5
+TX-1002,2024-01-08,South,Furniture,850.00,2
+TX-1003,2024-01-15,East,Electronics,2200.00,8
+TX-1004,2024-02-02,West,Clothing,450.00,15
+TX-1005,2024-02-14,North,Furniture,1250.00,3
+TX-1006,2024-03-01,South,Electronics,3100.00,10

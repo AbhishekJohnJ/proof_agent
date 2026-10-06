@@ -1,0 +1,13 @@
+GlobalCorp Annual Financial Summary 2024
+
+Executive Summary:
+GlobalCorp delivered strong top-line performance in Fiscal Year 2024. Total gross revenue across all regional operating hubs reached $9,350,000, representing a 14% year-over-year increase compared to FY 2023.
+
+Regional Breakdown:
+- North Region: Generated $3,200,000 driven by strong demand in enterprise server systems.
+- South Region: Generated $2,400,000 supported by consumer product expansion.
+- East Region: Generated $2,100,000 with steady growth in cloud consulting services.
+- West Region: Generated $1,650,000.
+
+Risk Factors & Data Discrepancies:
+Operational audit identified currency conversion discrepancies in European hubs during Q2 due to unhedged EUR/USD fluctuations.

@@ -1,0 +1,6 @@
+order_id,customer_id,order_date,amount,status
+ORD-101,CUST-001,2024-01-10,250.00,completed
+ORD-102,CUST-002,2024-01-12,120.50,completed
+ORD-103,CUST-001,2024-02-01,450.00,completed
+ORD-104,CUST-003,2024-02-15,1200.00,completed
+ORD-105,CUST-004,2024-03-01,89.99,cancelled

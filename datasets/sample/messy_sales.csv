@@ -1,0 +1,7 @@
+transaction_id,date,region,category,revenue,units_sold,currency,company_name
+TX-1001,01/02/2024,North,Electronics,1500.00,5,$1500,GlobalCorp
+TX-1001,01/02/2024,North,Electronics,1500.00,5,$1500,GlobalCorp
+TX-1002,02/03/2024,South,Furniture,,2,€850,GlobalCorp
+TX-1003,2024-03-01,East,Electronics,2200.00,8,2200 USD,GlobalCorp
+TX-1004,04/05/2024,West,Clothing,450.00,15,$450,GlobalCorp
+TX-1005,2024-05-12,North,Furniture,1250.00,3,JPY 150000,GlobalCorp

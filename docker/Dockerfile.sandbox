@@ -1,0 +1,10 @@
+FROM python:3.11-slim
+
+RUN useradd -m sandboxuser
+
+WORKDIR /sandbox
+RUN chown sandboxuser:sandboxuser /sandbox
+
+USER sandboxuser
+
+CMD ["python3"]
