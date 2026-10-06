@@ -1,0 +1,260 @@
+{
+  "name": "Indian E-Commerce Sales & Customer Analytics",
+  "source": "Kaggle",
+  "local": true,
+  "provenance": true,
+  "license": "CC0: Public Domain",
+  "datasets": {
+    "customers": {
+      "file": "customers.csv",
+      "primary_key": "customer_id",
+      "row_count": 25000,
+      "columns": [
+        "customer_id",
+        "customer_signup_date",
+        "gender",
+        "age",
+        "age_group",
+        "state",
+        "city",
+        "pincode_prefix",
+        "customer_segment",
+        "preferred_device",
+        "preferred_payment_method",
+        "acquisition_channel",
+        "total_orders",
+        "total_spend",
+        "last_order_date",
+        "average_order_value",
+        "customer_status",
+        "loyalty_tier"
+      ]
+    },
+    "products": {
+      "file": "products.csv",
+      "primary_key": "product_id",
+      "row_count": 550,
+      "columns": [
+        "product_id",
+        "product_name",
+        "category",
+        "subcategory",
+        "brand",
+        "price",
+        "cost_price",
+        "discount_range",
+        "rating_average",
+        "rating_count",
+        "stock_quantity",
+        "product_launch_date",
+        "product_type",
+        "return_rate_baseline"
+      ]
+    },
+    "orders": {
+      "file": "orders.csv",
+      "primary_key": "order_id",
+      "row_count": 100000,
+      "columns": [
+        "order_id",
+        "customer_id",
+        "order_date",
+        "order_time",
+        "order_status",
+        "shipping_method",
+        "delivery_city",
+        "delivery_state",
+        "coupon_code",
+        "discount_percentage",
+        "marketing_channel",
+        "subtotal",
+        "shipping_fee",
+        "tax_amount",
+        "final_amount",
+        "campaign_id"
+      ]
+    },
+    "order_items": {
+      "file": "order_items.csv",
+      "primary_key": "order_item_id",
+      "row_count": 254331,
+      "columns": [
+        "order_item_id",
+        "order_id",
+        "product_id",
+        "quantity",
+        "unit_price",
+        "discount_percentage",
+        "item_revenue",
+        "item_cost",
+        "profit"
+      ]
+    },
+    "payments": {
+      "file": "payments.csv",
+      "primary_key": "payment_id",
+      "row_count": 100000,
+      "columns": [
+        "payment_id",
+        "order_id",
+        "payment_date",
+        "payment_method",
+        "payment_status",
+        "amount_paid",
+        "transaction_fee",
+        "refund_amount"
+      ]
+    },
+    "shipments": {
+      "file": "shipments.csv",
+      "primary_key": "shipment_id",
+      "row_count": 89681,
+      "columns": [
+        "shipment_id",
+        "order_id",
+        "warehouse_city",
+        "delivery_city",
+        "shipping_method",
+        "dispatch_date",
+        "expected_delivery_date",
+        "actual_delivery_date",
+        "delivery_days",
+        "delivery_status",
+        "delayed_flag"
+      ]
+    },
+    "returns": {
+      "file": "returns.csv",
+      "primary_key": "return_id",
+      "row_count": 12075,
+      "columns": [
+        "return_id",
+        "order_id",
+        "customer_id",
+        "product_id",
+        "return_date",
+        "return_reason",
+        "refund_amount",
+        "return_status"
+      ]
+    },
+    "customer_reviews": {
+      "file": "customer_reviews.csv",
+      "primary_key": "review_id",
+      "row_count": 77530,
+      "columns": [
+        "review_id",
+        "order_id",
+        "customer_id",
+        "product_id",
+        "review_date",
+        "rating",
+        "review_sentiment",
+        "verified_purchase"
+      ]
+    },
+    "marketing_campaigns": {
+      "file": "marketing_campaigns.csv",
+      "primary_key": "campaign_id",
+      "row_count": 151,
+      "columns": [
+        "campaign_id",
+        "campaign_name",
+        "channel",
+        "campaign_start_date",
+        "campaign_end_date",
+        "campaign_type",
+        "target_segment",
+        "discount_percentage",
+        "conversions",
+        "revenue_generated",
+        "impressions",
+        "clicks",
+        "campaign_cost",
+        "roi"
+      ]
+    }
+  },
+  "relationships": [
+    {
+      "source_table": "orders",
+      "source_column": "customer_id",
+      "target_table": "customers",
+      "target_column": "customer_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "order_items",
+      "source_column": "order_id",
+      "target_table": "orders",
+      "target_column": "order_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "order_items",
+      "source_column": "product_id",
+      "target_table": "products",
+      "target_column": "product_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "payments",
+      "source_column": "order_id",
+      "target_table": "orders",
+      "target_column": "order_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "shipments",
+      "source_column": "order_id",
+      "target_table": "orders",
+      "target_column": "order_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "returns",
+      "source_column": "order_id",
+      "target_table": "orders",
+      "target_column": "order_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "returns",
+      "source_column": "customer_id",
+      "target_table": "customers",
+      "target_column": "customer_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "returns",
+      "source_column": "product_id",
+      "target_table": "products",
+      "target_column": "product_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "customer_reviews",
+      "source_column": "order_id",
+      "target_table": "orders",
+      "target_column": "order_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    },
+    {
+      "source_table": "orders",
+      "source_column": "campaign_id",
+      "target_table": "marketing_campaigns",
+      "target_column": "campaign_id",
+      "cardinality": "many_to_one",
+      "validated": true
+    }
+  ]
+}

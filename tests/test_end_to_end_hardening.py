@@ -126,6 +126,13 @@ def test_7_hybrid_evidence_contract():
     doc_meta = MetadataExtractor.extract_metadata("doc_test7", doc_path.name, len(pages), len(chunks))
     storage_service.save_document(doc_meta, doc_path, chunks)
 
+    from backend.rag.vector_store import global_vector_store
+    from backend.rag.embeddings import EmbeddingService
+    from backend.providers.factory import ProviderFactory
+    emb_service = EmbeddingService(ProviderFactory.get_embedding_provider())
+    embs = emb_service.embed_chunks([c.text for c in chunks])
+    global_vector_store.add_chunks(chunks, embs)
+
     orchestrator = get_orchestrator()
     req = AnalysisRequest(
         question="What is the total revenue stated in the annual report?",

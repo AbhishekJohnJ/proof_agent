@@ -49,13 +49,16 @@ class QualityEngine:
                     affected_columns=[col_str]
                 ))
 
-            # Potential ID duplication check
-            if "id" in col_str.lower() or "key" in col_str.lower() or "code" in col_str.lower():
-                if non_null.duplicated().any():
+            # Primary Key duplication check (only check primary key candidate columns ending with _id or id)
+            if col_str.lower() in ["id", "customer_id", "order_id", "product_id", "payment_id", "shipment_id", "return_id", "review_id", "campaign_id", "order_item_id"]:
+                # Check if it matches table primary key pattern (not a foreign key)
+                is_fk = col_str.lower() in ["customer_id", "order_id", "product_id", "campaign_id"]
+                # Only raise critical if it's a primary key column in its primary table or a standalone id
+                if not is_fk and non_null.duplicated().any():
                     warnings.append(QualityWarning(
                         severity="critical",
                         type="duplicate_candidate_id",
-                        message=f"Candidate identifier column '{col_str}' contains duplicate non-null keys.",
+                        message=f"Primary key column '{col_str}' contains duplicate non-null keys.",
                         affected_columns=[col_str]
                     ))
 

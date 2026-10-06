@@ -1,0 +1,24 @@
+{
+  "dataset": "Indian E-Commerce Sales & Customer Analytics",
+  "total_revenue": 2572592368.57,
+  "average_order_value": 25725.92,
+  "highest_revenue_category": {
+    "category": "Electronics",
+    "revenue": 1223618824.25
+  },
+  "premium_customer_revenue": 883828539.52,
+  "highest_sales_state": {
+    "state": "Maharashtra",
+    "sales": 359848817.33
+  },
+  "return_rate_percentage": 9.51,
+  "highest_aov_segment": {
+    "segment": "Premium",
+    "aov": 29574.32
+  },
+  "returning_customers_revenue": 1224509084.44,
+  "highest_return_rate_category": {
+    "category": "Footwear",
+    "return_rate": 8.54
+  }
+}

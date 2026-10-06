@@ -50,6 +50,10 @@ class DatasetMetadata(BaseModel):
     created_at: str
     status: str = "success"
     error_message: Optional[str] = None
+    description: Optional[str] = None
+    source: Optional[str] = "User"
+    is_built_in: bool = False
+    license: Optional[str] = None
 
 class DatasetArtifact(BaseModel):
     dataset_id: str

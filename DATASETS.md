@@ -7,6 +7,26 @@ This document describes synthetic sample datasets used for development, testing,
 
 ---
 
+## Built-in Kaggle Dataset: Indian E-Commerce Sales & Customer Analytics
+
+* **Source**: Kaggle Public Domain Dataset (`data/`)
+* **License**: CC0: Public Domain
+* **Provenanced & Registered**: Auto-registered in `DatasetCatalog` as `BUILT_IN_DATASET` (`is_built_in=True`).
+
+### Included Tables in `data/`
+
+1. **`customers.csv`** (25,000 rows): Customer demographic, location, signup date, segment, and RFM spend statistics. Primary Key: `customer_id`.
+2. **`orders.csv`** (100,000 rows): Main transactional order records including timestamps, discount, shipping fee, tax, and `final_amount`. Primary Key: `order_id`, Foreign Key: `customer_id` -> `customers`.
+3. **`order_items.csv`** (254,331 rows): Line-item order breakdown with unit price, discount, item revenue, cost, and net profit. Primary Key: `order_item_id`, Foreign Keys: `order_id` -> `orders`, `product_id` -> `products`.
+4. **`products.csv`** (550 rows): Catalog items including category, subcategory, brand, price, cost price, and stock quantity. Primary Key: `product_id`.
+5. **`payments.csv`** (100,000 rows): Gateway payments, method (UPI, NetBanking, Card), status, captured amount, and refund details. Primary Key: `payment_id`, Foreign Key: `order_id` -> `orders`.
+6. **`shipments.csv`** (89,681 rows): Warehouse dispatch dates, SLAs, actual delivery dates, and delay flags. Primary Key: `shipment_id`, Foreign Key: `order_id` -> `orders`.
+7. **`returns.csv`** (12,075 rows): Customer return requests, reason, status, and refund amounts. Primary Key: `return_id`, Foreign Keys: `order_id`, `customer_id`, `product_id`.
+8. **`customer_reviews.csv`** (77,530 rows): Star ratings, text sentiment, and verified purchase flags. Primary Key: `review_id`, Foreign Keys: `order_id`, `customer_id`, `product_id`.
+9. **`marketing_campaigns.csv`** (151 rows): Ad campaign metadata, impressions, clicks, conversions, cost, and ROI. Primary Key: `campaign_id`.
+
+---
+
 ## Included Sample Datasets
 
 ### 1. `customers.csv`
@@ -61,4 +81,4 @@ The Data Quality Engine ([backend/profiling/quality.py](file:///Users/Jivithesh/
 
 ## License & Usage
 
-All sample datasets are provided under the MIT License and contain no PII or real-world proprietary data.
+Sample datasets are provided under the MIT License. Built-in Kaggle datasets are provided under CC0 Public Domain.

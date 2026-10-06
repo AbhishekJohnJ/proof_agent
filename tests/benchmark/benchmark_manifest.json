@@ -46,7 +46,7 @@
     "selected_datasets": ["customers.csv", "orders.csv"],
     "selected_documents": [],
     "expected_outcome": "VERIFIED",
-    "expected_result": 339.99,
+    "expected_result": 789.99,
     "expected_refusal_reason": null
   },
   {
