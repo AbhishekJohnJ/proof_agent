@@ -34,10 +34,10 @@ export const DataSourcesPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b theme-border pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Data Sources</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight">Data Sources</h1>
+          <p className="text-sm theme-text-muted mt-1">
             Upload and inspect the data used by your analyses.
           </p>
         </div>
@@ -49,7 +49,7 @@ export const DataSourcesPage: React.FC = () => {
 
       {/* Upload Dropzone */}
       <div className="space-y-2">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <h3 className="text-xs font-semibold theme-text-muted uppercase tracking-wider">
           Upload New Dataset
         </h3>
         <UploadDropzone
@@ -62,7 +62,7 @@ export const DataSourcesPage: React.FC = () => {
 
       {/* Datasets Selection List */}
       <div className="space-y-3">
-        <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <h3 className="text-xs font-semibold theme-text-muted uppercase tracking-wider">
           Available Datasets ({datasets.length})
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -72,16 +72,16 @@ export const DataSourcesPage: React.FC = () => {
               onClick={() => setSelectedDataset(ds)}
               className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3 ${
                 selectedDataset?.id === ds.id
-                  ? 'bg-indigo-950/40 border-indigo-500/80 shadow-sm ring-1 ring-indigo-500/30'
-                  : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                  ? 'bg-[#E64A32]/15 border-[#E64A32] shadow-sm ring-1 ring-[#E64A32]/30'
+                  : 'theme-card hover:border-[#E64A32]/50'
               }`}
             >
-              <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-indigo-400 font-mono text-xs border border-slate-700">
+              <div className="w-10 h-10 rounded-lg theme-input flex items-center justify-center text-[#E64A32] font-mono text-xs border theme-border">
                 <Database className="w-5 h-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-semibold text-slate-100 truncate font-mono">{ds.name}</h4>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                <h4 className="text-sm font-semibold truncate font-mono">{ds.name}</h4>
+                <p className="text-xs theme-text-muted font-mono mt-0.5">
                   {ds.size} · {ds.rows.toLocaleString()} rows
                 </p>
               </div>
@@ -92,7 +92,7 @@ export const DataSourcesPage: React.FC = () => {
 
       {/* Selected Dataset Inspection */}
       {selectedDataset && (
-        <div className="space-y-6 pt-4 border-t border-slate-800">
+        <div className="space-y-6 pt-4 border-t theme-border">
           <DatasetHeader
             dataset={selectedDataset}
             onPreview={() => setPreviewOpen(true)}
@@ -115,42 +115,42 @@ export const DataSourcesPage: React.FC = () => {
           maxWidth="2xl"
         >
           <div className="space-y-4 font-mono text-xs">
-            <div className="flex items-center gap-2 text-slate-400 text-xs font-sans pb-2 border-b border-slate-800">
-              <Table className="w-4 h-4 text-indigo-400" />
+            <div className="flex items-center gap-2 theme-text-muted text-xs font-sans pb-2 border-b theme-border">
+              <Table className="w-4 h-4 text-[#E64A32]" />
               <span>Showing first 5 sample rows of parsed dataset</span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-950 border-b border-slate-800 text-slate-300">
-                    <th className="p-2 border-r border-slate-800">Order_ID</th>
-                    <th className="p-2 border-r border-slate-800">Order_Date</th>
-                    <th className="p-2 border-r border-slate-800">Region</th>
-                    <th className="p-2 border-r border-slate-800">Revenue</th>
+                  <tr className="theme-input border-b theme-border">
+                    <th className="p-2 border-r theme-border">Order_ID</th>
+                    <th className="p-2 border-r theme-border">Order_Date</th>
+                    <th className="p-2 border-r theme-border">Region</th>
+                    <th className="p-2 border-r theme-border">Revenue</th>
                     <th className="p-2">Salesperson</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60 bg-slate-900/60 text-slate-200">
+                <tbody className="divide-y theme-border theme-card">
                   <tr>
-                    <td className="p-2 border-r border-slate-800">ORD-9021</td>
-                    <td className="p-2 border-r border-slate-800">2025-10-14</td>
-                    <td className="p-2 border-r border-slate-800">North</td>
-                    <td className="p-2 border-r border-slate-800 text-emerald-400">₹45,000</td>
+                    <td className="p-2 border-r theme-border">ORD-9021</td>
+                    <td className="p-2 border-r theme-border">2025-10-14</td>
+                    <td className="p-2 border-r theme-border">North</td>
+                    <td className="p-2 border-r theme-border text-[#E64A32] font-bold">₹45,000</td>
                     <td className="p-2">R. Sharma</td>
                   </tr>
                   <tr>
-                    <td className="p-2 border-r border-slate-800">ORD-9022</td>
-                    <td className="p-2 border-r border-slate-800">2025-10-15</td>
-                    <td className="p-2 border-r border-slate-800">West</td>
-                    <td className="p-2 border-r border-slate-800 text-emerald-400">₹1,20,000</td>
+                    <td className="p-2 border-r theme-border">ORD-9022</td>
+                    <td className="p-2 border-r theme-border">2025-10-15</td>
+                    <td className="p-2 border-r theme-border">West</td>
+                    <td className="p-2 border-r theme-border text-[#E64A32] font-bold">₹1,20,000</td>
                     <td className="p-2">A. Patel</td>
                   </tr>
                   <tr>
-                    <td className="p-2 border-r border-slate-800">ORD-9023</td>
-                    <td className="p-2 border-r border-slate-800">2025-10-18</td>
-                    <td className="p-2 border-r border-slate-800">South</td>
-                    <td className="p-2 border-r border-slate-800 text-emerald-400">₹78,500</td>
+                    <td className="p-2 border-r theme-border">ORD-9023</td>
+                    <td className="p-2 border-r theme-border">2025-10-18</td>
+                    <td className="p-2 border-r theme-border">South</td>
+                    <td className="p-2 border-r theme-border text-[#E64A32] font-bold">₹78,500</td>
                     <td className="p-2">M. Nair</td>
                   </tr>
                 </tbody>

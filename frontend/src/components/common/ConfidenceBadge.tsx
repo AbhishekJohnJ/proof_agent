@@ -20,17 +20,17 @@ export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
     high: {
       label: 'High Confidence',
       icon: ShieldCheck,
-      styles: 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20',
+      styles: 'bg-[#E64A32]/20 text-[#E64A32] border-[#E64A32]/40',
     },
     medium: {
       label: 'Medium Confidence',
       icon: ShieldAlert,
-      styles: 'bg-amber-950/40 text-amber-400 border-amber-500/20',
+      styles: 'bg-[#E18230]/20 text-[#E18230] border-[#E18230]/40',
     },
     low: {
       label: 'Low Confidence',
       icon: ShieldX,
-      styles: 'bg-rose-950/40 text-rose-400 border-rose-500/20',
+      styles: 'bg-[#3C3B39] text-[#F4F5EC]/70 border-[#3C3B39]',
     },
   }[confidence];
 
@@ -39,7 +39,7 @@ export const ConfidenceBadge: React.FC<ConfidenceBadgeProps> = ({
   const sizeStyles = {
     sm: 'px-2 py-0.5 text-xs gap-1',
     md: 'px-2.5 py-1 text-xs gap-1.5',
-    lg: 'px-3 py-1.5 text-sm gap-2',
+    lg: 'px-3 py-1.5 text-sm gap-2 font-semibold',
   }[size];
 
   return (

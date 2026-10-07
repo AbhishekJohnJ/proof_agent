@@ -11,9 +11,9 @@ export const KPIGrid: React.FC<KPIGridProps> = ({ kpis }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {kpis.map((kpi, idx) => (
-        <Card key={idx} className="p-4 bg-slate-900/60 border-slate-800">
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{kpi.label}</p>
-          <p className="text-xl font-bold text-white mt-1 font-mono tracking-tight">{kpi.value}</p>
+        <Card key={idx} className="p-4 bg-[#242726] border-[#3C3B39]">
+          <p className="text-xs font-semibold text-[#F4F5EC]/60 uppercase tracking-wider">{kpi.label}</p>
+          <p className="text-xl font-bold text-[#E64A32] mt-1 font-mono tracking-tight">{kpi.value}</p>
         </Card>
       ))}
     </div>

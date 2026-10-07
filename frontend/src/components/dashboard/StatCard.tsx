@@ -8,7 +8,7 @@ interface StatCardProps {
   subtext?: string;
   icon: LucideIcon;
   trend?: string;
-  accentColor?: 'emerald' | 'indigo' | 'amber' | 'slate';
+  accentColor?: 'emerald' | 'indigo' | 'amber' | 'slate' | 'red' | 'orange';
 }
 
 export const StatCard: React.FC<StatCardProps> = ({
@@ -17,23 +17,25 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtext,
   icon: Icon,
   trend,
-  accentColor = 'indigo',
+  accentColor = 'red',
 }) => {
   const iconColor = {
-    emerald: 'text-emerald-400 bg-emerald-950/50 border-emerald-500/30',
-    indigo: 'text-indigo-400 bg-indigo-950/50 border-indigo-500/30',
-    amber: 'text-amber-400 bg-amber-950/50 border-amber-500/30',
-    slate: 'text-slate-300 bg-slate-800 border-slate-700',
+    red: 'text-[#E64A32] bg-[#E64A32]/15 border-[#E64A32]/30',
+    orange: 'text-[#E18230] bg-[#E18230]/15 border-[#E18230]/30',
+    amber: 'text-[#E18230] bg-[#E18230]/15 border-[#E18230]/30',
+    emerald: 'text-[#E64A32] bg-[#E64A32]/15 border-[#E64A32]/30',
+    indigo: 'text-[#E64A32] bg-[#E64A32]/15 border-[#E64A32]/30',
+    slate: 'text-[#F4F5EC] bg-[#3C3B39] border-[#3C3B39]',
   }[accentColor];
 
   return (
     <Card className="flex items-start justify-between">
       <div>
-        <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{label}</p>
-        <h3 className="text-2xl font-bold text-white mt-1 font-mono tracking-tight">{value}</h3>
-        {subtext && <p className="text-xs text-slate-400 mt-1">{subtext}</p>}
+        <p className="text-xs font-semibold text-[#F4F5EC]/60 uppercase tracking-wider">{label}</p>
+        <h3 className="text-2xl font-bold text-[#F4F5EC] mt-1 font-mono tracking-tight">{value}</h3>
+        {subtext && <p className="text-xs text-[#F4F5EC]/60 mt-1">{subtext}</p>}
         {trend && (
-          <span className="inline-block text-[11px] font-medium text-emerald-400 mt-1.5 bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/20">
+          <span className="inline-block text-[11px] font-bold text-[#E64A32] mt-1.5 bg-[#E64A32]/15 px-2 py-0.5 rounded border border-[#E64A32]/30">
             {trend}
           </span>
         )}

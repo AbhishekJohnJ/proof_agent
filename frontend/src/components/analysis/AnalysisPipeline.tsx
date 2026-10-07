@@ -16,7 +16,7 @@ interface AnalysisPipelineProps {
 }
 
 export const AnalysisPipeline: React.FC<AnalysisPipelineProps> = ({ onComplete, fastMode = false }) => {
-  const [steps, setSteps] = useState<PipelineStep[]>([
+  const [steps] = useState<PipelineStep[]>([
     { id: '1', label: 'Understanding question & classifying intent', status: 'pending', detail: 'Parsing temporal & numeric requirements' },
     { id: '2', label: 'Selecting relevant dataset (sales_data.csv)', status: 'pending', detail: 'Validating column schemas' },
     { id: '3', label: 'Generating analysis plan', status: 'pending', detail: 'Formulating mathematical model' },
@@ -31,14 +31,14 @@ export const AnalysisPipeline: React.FC<AnalysisPipelineProps> = ({ onComplete, 
   const [currentIdx, setCurrentIdx] = useState<number>(0);
 
   useEffect(() => {
-    const delay = fastMode ? 250 : 600;
+    const delay = fastMode ? 250 : 500;
 
     const timer = setInterval(() => {
       setCurrentIdx((prev) => {
         if (prev >= steps.length - 1) {
           clearInterval(timer);
           if (onComplete) {
-            setTimeout(onComplete, fastMode ? 200 : 500);
+            setTimeout(onComplete, fastMode ? 200 : 400);
           }
           return prev;
         }
@@ -50,18 +50,18 @@ export const AnalysisPipeline: React.FC<AnalysisPipelineProps> = ({ onComplete, 
   }, [steps.length, fastMode, onComplete]);
 
   return (
-    <Card className="max-w-xl mx-auto border-indigo-500/30 bg-slate-900/90 p-8 shadow-xl">
-      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
-        <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+    <Card className="max-w-xl mx-auto border-[#E64A32]/40 bg-[#242726] p-8 shadow-xl">
+      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[#3C3B39]">
+        <div className="w-10 h-10 rounded-xl bg-[#E64A32]/15 border border-[#E64A32]/40 flex items-center justify-center text-[#E64A32]">
           <ShieldCheck className="w-6 h-6 animate-pulse" />
         </div>
         <div>
-          <h3 className="text-base font-bold text-white tracking-tight">ProofAI Verification Pipeline</h3>
-          <p className="text-xs text-slate-400">Executing deterministic calculation and verification trace</p>
+          <h3 className="text-base font-bold text-[#F4F5EC] tracking-tight">ProofAI Verification Pipeline</h3>
+          <p className="text-xs text-[#F4F5EC]/60">Executing deterministic calculation and verification trace</p>
         </div>
       </div>
 
-      <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-800">
+      <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#3C3B39]">
         {steps.map((step, idx) => {
           const isDone = idx < currentIdx || (idx === steps.length - 1 && currentIdx === steps.length - 1);
           const isRunning = idx === currentIdx && currentIdx < steps.length - 1;
@@ -71,10 +71,10 @@ export const AnalysisPipeline: React.FC<AnalysisPipelineProps> = ({ onComplete, 
               <div
                 className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                   isDone
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500'
+                    ? 'bg-[#E64A32]/20 text-[#E64A32] border border-[#E64A32]'
                     : isRunning
-                    ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500 animate-pulse'
-                    : 'bg-slate-900 text-slate-600 border border-slate-800'
+                    ? 'bg-[#E18230]/20 text-[#E18230] border border-[#E18230] animate-pulse'
+                    : 'bg-[#151918] text-[#3C3B39] border border-[#3C3B39]'
                 }`}
               >
                 {isDone ? (
@@ -90,10 +90,10 @@ export const AnalysisPipeline: React.FC<AnalysisPipelineProps> = ({ onComplete, 
                 <div
                   className={`text-sm font-medium transition-colors ${
                     isDone
-                      ? 'text-slate-200'
+                      ? 'text-[#F4F5EC]'
                       : isRunning
-                      ? 'text-indigo-300 font-semibold'
-                      : 'text-slate-500'
+                      ? 'text-[#E64A32] font-bold'
+                      : 'text-[#F4F5EC]/40'
                   }`}
                 >
                   {step.label}
@@ -102,10 +102,10 @@ export const AnalysisPipeline: React.FC<AnalysisPipelineProps> = ({ onComplete, 
                   <div
                     className={`text-xs font-mono mt-0.5 transition-colors ${
                       isDone
-                        ? 'text-slate-400'
+                        ? 'text-[#F4F5EC]/60'
                         : isRunning
-                        ? 'text-indigo-400/90'
-                        : 'text-slate-600'
+                        ? 'text-[#E18230]'
+                        : 'text-[#F4F5EC]/30'
                     }`}
                   >
                     {step.detail}

@@ -14,22 +14,22 @@ export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({ analyses }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden shadow-xs">
-      <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+    <div className="bg-[#242726] border border-[#3C3B39] rounded-xl overflow-hidden shadow-xs">
+      <div className="p-5 border-b border-[#3C3B39] flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-slate-100">Recent Analyses</h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <h3 className="text-base font-bold text-[#F4F5EC]">Recent Analyses</h3>
+          <p className="text-xs text-[#F4F5EC]/60 mt-0.5">
             Verified analytical runs and evidence checks
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={() => navigate('/runs')}>
-          View all runs <ArrowRight className="w-3.5 h-3.5 ml-1" />
+          View all runs <ArrowRight className="w-3.5 h-3.5 ml-1 text-[#E64A32]" />
         </Button>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-slate-300">
-          <thead className="bg-slate-950/60 text-slate-400 text-xs uppercase font-medium border-b border-slate-800">
+        <table className="w-full text-left text-sm text-[#F4F5EC]">
+          <thead className="bg-[#151918] text-[#F4F5EC]/60 text-xs uppercase font-medium border-b border-[#3C3B39]">
             <tr>
               <th className="px-5 py-3">Analysis Question</th>
               <th className="px-5 py-3">Dataset</th>
@@ -39,19 +39,19 @@ export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({ analyses }) => {
               <th className="px-5 py-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-[#3C3B39]/60">
             {analyses.map((item) => (
               <tr
                 key={item.id}
-                className="hover:bg-slate-800/40 transition-colors cursor-pointer"
+                className="hover:bg-[#3C3B39]/40 transition-colors cursor-pointer"
                 onClick={() => navigate(`/analysis/${item.id}`)}
               >
-                <td className="px-5 py-3.5 font-medium text-slate-100 max-w-xs truncate">
+                <td className="px-5 py-3.5 font-semibold text-[#F4F5EC] max-w-xs truncate">
                   {item.question}
                 </td>
                 <td className="px-5 py-3.5">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 bg-slate-800/60 px-2 py-1 rounded border border-slate-700/50">
-                    <Database className="w-3 h-3 text-indigo-400" />
+                  <span className="inline-flex items-center gap-1.5 text-xs font-mono text-[#F4F5EC]/80 bg-[#151918] px-2 py-1 rounded border border-[#3C3B39]">
+                    <Database className="w-3 h-3 text-[#E64A32]" />
                     {item.datasetName}
                   </span>
                 </td>
@@ -61,7 +61,7 @@ export const RecentAnalyses: React.FC<RecentAnalysesProps> = ({ analyses }) => {
                 <td className="px-5 py-3.5">
                   <ConfidenceBadge confidence={item.confidence} size="sm" />
                 </td>
-                <td className="px-5 py-3.5 text-xs text-slate-400">{item.date}</td>
+                <td className="px-5 py-3.5 text-xs text-[#F4F5EC]/60">{item.date}</td>
                 <td className="px-5 py-3.5 text-right">
                   <Button
                     variant="outline"

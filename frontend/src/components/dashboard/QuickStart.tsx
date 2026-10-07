@@ -13,7 +13,7 @@ export const QuickStart: React.FC = () => {
       icon: UploadCloud,
       action: () => navigate('/data'),
       cta: 'Upload Dataset',
-      accent: 'text-indigo-400 bg-indigo-950/40 border-indigo-500/30',
+      accent: 'text-[#E64A32] bg-[#E64A32]/15 border-[#E64A32]/30',
     },
     {
       title: 'Ask a Question',
@@ -21,7 +21,7 @@ export const QuickStart: React.FC = () => {
       icon: MessageSquarePlus,
       action: () => navigate('/analysis'),
       cta: 'Ask Question',
-      accent: 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30',
+      accent: 'text-[#E18230] bg-[#E18230]/15 border-[#E18230]/30',
     },
     {
       title: 'Inspect Evidence',
@@ -29,13 +29,13 @@ export const QuickStart: React.FC = () => {
       icon: FileSearch,
       action: () => navigate('/evidence'),
       cta: 'Browse Evidence',
-      accent: 'text-sky-400 bg-sky-950/40 border-sky-500/30',
+      accent: 'text-[#F4F5EC] bg-[#3C3B39] border-[#3C3B39]',
     },
   ];
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">
+      <h3 className="text-xs font-semibold text-[#F4F5EC]/60 uppercase tracking-wider">
         Quick Start
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -54,14 +54,14 @@ export const QuickStart: React.FC = () => {
                 >
                   <Icon className="w-5 h-5" />
                 </div>
-                <h4 className="text-base font-semibold text-white group-hover:text-indigo-300 transition-colors">
+                <h4 className="text-base font-bold text-[#F4F5EC] group-hover:text-[#E64A32] transition-colors">
                   {card.title}
                 </h4>
-                <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                <p className="text-xs text-[#F4F5EC]/70 mt-1 leading-relaxed">
                   {card.description}
                 </p>
               </div>
-              <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center text-xs font-medium text-indigo-400 group-hover:text-indigo-300">
+              <div className="mt-4 pt-3 border-t border-[#3C3B39] flex items-center text-xs font-bold text-[#E64A32] group-hover:text-[#E64A32]">
                 {card.cta}
                 <ArrowRight className="w-3.5 h-3.5 ml-1 transition-transform group-hover:translate-x-1" />
               </div>

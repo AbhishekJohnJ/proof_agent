@@ -2,15 +2,31 @@
 
 @layer base {
   :root {
-    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --bg-main: #151918;
+    --bg-card: #242726;
+    --bg-input: #151918;
+    --border-color: #3C3B39;
+    --text-primary: #F4F5EC;
+    --text-muted: rgba(244, 245, 236, 0.65);
+    --cyber-red: #E64A32;
+    --burnt-orange: #E18230;
   }
-  
+
+  html.light {
+    --bg-main: #FFFFFF;
+    --bg-card: #F4F5EC;
+    --bg-input: #EAECE4;
+    --border-color: #D1D5DB;
+    --text-primary: #151918;
+    --text-muted: #4B5563;
+  }
+
   body {
-    font-family: var(--font-sans);
-    background-color: #030712; /* slate-950 */
-    color: #f8fafc; /* slate-50 */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     overflow-x: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -20,34 +36,50 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: var(--bg-main);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: var(--border-color);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #E64A32;
 }
 
-/* Subtle code font styling */
 code, pre, .font-mono {
-  font-family: var(--font-mono);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-/* Subtle glass background */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.4);
+.theme-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
-/* Pulse keyframes for verification engine status */
-@keyframes pulse-emerald {
+.theme-main {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+}
+
+.theme-input {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.theme-border {
+  border-color: var(--border-color);
+}
+
+.theme-text-muted {
+  color: var(--text-muted);
+}
+
+@keyframes pulse-cyber {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.95); }
 }
 
-.animate-pulse-emerald {
-  animation: pulse-emerald 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-pulse-cyber {
+  animation: pulse-cyber 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

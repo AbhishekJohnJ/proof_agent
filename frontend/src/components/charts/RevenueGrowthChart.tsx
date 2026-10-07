@@ -20,10 +20,10 @@ const data = [
 
 export const RevenueGrowthChart: React.FC = () => {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+    <div className="bg-[#242726] border border-[#3C3B39] rounded-xl p-5 space-y-4">
       <div>
-        <h4 className="text-sm font-semibold text-slate-100">Monthly Revenue Trend (Q3 vs Q4)</h4>
-        <p className="text-xs text-slate-400">Sequential growth culminating in ₹14.7L Q4 total</p>
+        <h4 className="text-sm font-bold text-[#F4F5EC]">Monthly Revenue Trend (Q3 vs Q4)</h4>
+        <p className="text-xs text-[#F4F5EC]/60">Sequential growth culminating in ₹14.7L Q4 total</p>
       </div>
 
       <div className="h-64 w-full">
@@ -31,27 +31,27 @@ export const RevenueGrowthChart: React.FC = () => {
           <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                <stop offset="5%" stopColor="#E64A32" stopOpacity={0.5} />
+                <stop offset="95%" stopColor="#E64A32" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis dataKey="month" stroke="#64748b" fontSize={11} tickLine={false} />
-            <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v}L`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#3C3B39" vertical={false} />
+            <XAxis dataKey="month" stroke="#F4F5EC" fontSize={11} tickLine={false} />
+            <YAxis stroke="#F4F5EC" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v}L`} />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#0f172a',
-                borderColor: '#334155',
+                backgroundColor: '#151918',
+                borderColor: '#3C3B39',
                 borderRadius: '8px',
                 fontSize: '12px',
-                color: '#f8fafc',
+                color: '#F4F5EC',
               }}
               formatter={(value: any) => [`₹${value} Lakhs`, 'Revenue']}
             />
             <Area
               type="monotone"
               dataKey="revenue"
-              stroke="#6366f1"
+              stroke="#E64A32"
               strokeWidth={2.5}
               fillOpacity={1}
               fill="url(#colorRev)"

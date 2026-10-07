@@ -19,11 +19,11 @@ export const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onSelect
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between text-xs text-slate-400 font-medium">
+      <div className="flex items-center justify-between text-xs text-[#F4F5EC]/60 font-medium">
         <span className="flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
-          <HelpCircle className="w-3.5 h-3.5 text-indigo-400" /> Suggested Questions
+          <HelpCircle className="w-3.5 h-3.5 text-[#E64A32]" /> Suggested Questions
         </span>
-        <span className="text-[11px] text-slate-400">Click any question to load</span>
+        <span className="text-[11px] text-[#F4F5EC]/50">Click any question to load</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -40,14 +40,14 @@ export const SuggestedQuestions: React.FC<SuggestedQuestionsProps> = ({ onSelect
                 isRefusal
                   ? 'bg-rose-950/40 text-rose-300 border-rose-500/30 hover:bg-rose-950/70 hover:border-rose-500/50'
                   : isConflict
-                  ? 'bg-amber-950/40 text-amber-300 border-amber-500/30 hover:bg-amber-950/70 hover:border-amber-500/50'
+                  ? 'bg-[#E18230]/20 text-[#E18230] border-[#E18230]/30 hover:bg-[#E18230]/40'
                   : isHighlight
-                  ? 'bg-indigo-950/60 text-indigo-200 border-indigo-500/40 hover:bg-indigo-900/80 hover:border-indigo-500'
-                  : 'bg-slate-900 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-[#E64A32]/20 text-[#E64A32] border-[#E64A32]/40 hover:bg-[#E64A32]/40'
+                  : 'bg-[#242726] text-[#F4F5EC] border-[#3C3B39] hover:bg-[#3C3B39] hover:text-[#F4F5EC]'
               }`}
             >
               {isRefusal && <AlertCircle className="w-3 h-3 text-rose-400" />}
-              {isConflict && <RefreshCw className="w-3 h-3 text-amber-400" />}
+              {isConflict && <RefreshCw className="w-3 h-3 text-[#E18230]" />}
               <span>{item.text}</span>
             </button>
           );

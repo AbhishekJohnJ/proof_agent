@@ -17,29 +17,29 @@ const data = [
   { region: 'East', revenue: 1.8, share: '12.2%' },
 ];
 
-const colors = ['#10b981', '#6366f1', '#38bdf8', '#f59e0b'];
+const colors = ['#E64A32', '#E18230', '#3C3B39', '#4D4B48'];
 
 export const RegionRevenueChart: React.FC = () => {
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+    <div className="bg-[#242726] border border-[#3C3B39] rounded-xl p-5 space-y-4">
       <div>
-        <h4 className="text-sm font-semibold text-slate-100">Q4 Regional Revenue Distribution</h4>
-        <p className="text-xs text-slate-400">North region generates highest revenue share</p>
+        <h4 className="text-sm font-bold text-[#F4F5EC]">Q4 Regional Revenue Distribution</h4>
+        <p className="text-xs text-[#F4F5EC]/60">North region generates highest revenue share</p>
       </div>
 
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis dataKey="region" stroke="#64748b" fontSize={11} tickLine={false} />
-            <YAxis stroke="#64748b" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v}L`} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#3C3B39" vertical={false} />
+            <XAxis dataKey="region" stroke="#F4F5EC" fontSize={11} tickLine={false} />
+            <YAxis stroke="#F4F5EC" fontSize={11} tickLine={false} tickFormatter={(v) => `₹${v}L`} />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#0f172a',
-                borderColor: '#334155',
+                backgroundColor: '#151918',
+                borderColor: '#3C3B39',
                 borderRadius: '8px',
                 fontSize: '12px',
-                color: '#f8fafc',
+                color: '#F4F5EC',
               }}
               formatter={(value: any, name: any, props: any) => [
                 `₹${value} Lakhs (${props.payload.share})`,

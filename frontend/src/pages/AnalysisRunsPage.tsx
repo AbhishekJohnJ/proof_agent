@@ -36,38 +36,38 @@ export const AnalysisRunsPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b theme-border pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Analysis Runs</h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold tracking-tight">Analysis Runs</h1>
+          <p className="text-sm theme-text-muted mt-1">
             Historical audit log of all completed, warning, and refused analytical calculations.
           </p>
         </div>
 
         {/* Search */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+          <Search className="w-4 h-4 theme-text-muted absolute left-3 top-3" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by question or dataset..."
-            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="w-full theme-input border theme-border rounded-lg pl-9 pr-4 py-2 text-sm focus:outline-none focus:border-[#E64A32]"
           />
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-3 overflow-x-auto">
-        <Filter className="w-4 h-4 text-slate-400 shrink-0 mr-1" />
+      <div className="flex items-center gap-2 border-b theme-border pb-3 overflow-x-auto">
+        <Filter className="w-4 h-4 theme-text-muted shrink-0 mr-1" />
         {filterTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setFilterStatus(tab.id as any)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               filterStatus === tab.id
-                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                ? 'bg-[#E64A32]/15 text-[#E64A32] border border-[#E64A32]/30'
+                : 'theme-text-muted hover:bg-[#3C3B39]/40'
             }`}
           >
             {tab.label}
@@ -76,10 +76,10 @@ export const AnalysisRunsPage: React.FC = () => {
       </div>
 
       {/* Runs Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xs">
+      <div className="theme-card border theme-border rounded-xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-300">
-            <thead className="bg-slate-950/80 text-slate-400 text-xs uppercase font-medium border-b border-slate-800">
+          <table className="w-full text-left text-sm">
+            <thead className="theme-input text-xs uppercase font-medium border-b theme-border">
               <tr>
                 <th className="px-5 py-3">Question</th>
                 <th className="px-5 py-3">Dataset</th>
@@ -90,23 +90,23 @@ export const AnalysisRunsPage: React.FC = () => {
                 <th className="px-5 py-3 text-right">View</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y theme-border">
               {filteredAnalyses.map((item) => (
                 <tr
                   key={item.id}
-                  className="hover:bg-slate-800/40 transition-colors cursor-pointer"
+                  className="hover:bg-[#3C3B39]/30 transition-colors cursor-pointer"
                   onClick={() => navigate(`/analysis/${item.id}`)}
                 >
-                  <td className="px-5 py-3.5 font-medium text-slate-100 max-w-xs truncate">
+                  <td className="px-5 py-3.5 font-semibold max-w-xs truncate">
                     {item.question}
                   </td>
                   <td className="px-5 py-3.5">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-mono text-slate-400 bg-slate-800/60 px-2 py-1 rounded border border-slate-700/50">
-                      <Database className="w-3 h-3 text-indigo-400" />
+                    <span className="inline-flex items-center gap-1.5 text-xs font-mono theme-input px-2 py-1 rounded border theme-border">
+                      <Database className="w-3 h-3 text-[#E64A32]" />
                       {item.datasetName}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 max-w-xs truncate font-mono text-xs text-slate-300">
+                  <td className="px-5 py-3.5 max-w-xs truncate font-mono text-xs theme-text-muted">
                     {item.answer || item.refusalDetails?.reason || '—'}
                   </td>
                   <td className="px-5 py-3.5">
@@ -115,7 +115,7 @@ export const AnalysisRunsPage: React.FC = () => {
                   <td className="px-5 py-3.5">
                     <ConfidenceBadge confidence={item.confidence} size="sm" />
                   </td>
-                  <td className="px-5 py-3.5 text-xs text-slate-400 font-mono">
+                  <td className="px-5 py-3.5 text-xs theme-text-muted font-mono">
                     {item.timestamp || item.date}
                   </td>
                   <td className="px-5 py-3.5 text-right">

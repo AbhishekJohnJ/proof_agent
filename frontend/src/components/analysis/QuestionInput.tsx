@@ -24,18 +24,18 @@ export const QuestionInput: React.FC<QuestionInputProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="relative rounded-xl border border-slate-700 bg-slate-900/90 shadow-lg p-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+      <div className="relative rounded-xl border border-[#3C3B39] bg-[#242726] shadow-lg p-2 focus-within:border-[#E64A32] focus-within:ring-2 focus-within:ring-[#E64A32]/20 transition-all">
         <textarea
           rows={3}
           value={question}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Example: Which region generated the highest revenue in Q4?"
-          className="w-full bg-transparent text-slate-100 placeholder-slate-500 text-base p-3 focus:outline-none resize-none"
+          className="w-full bg-transparent text-[#F4F5EC] placeholder-[#F4F5EC]/40 text-base p-3 focus:outline-none resize-none"
         />
 
-        <div className="flex items-center justify-between px-3 pt-2 border-t border-slate-800">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+        <div className="flex items-center justify-between px-3 pt-2 border-t border-[#3C3B39]">
+          <div className="flex items-center gap-2 text-xs text-[#F4F5EC]/60">
+            <Sparkles className="w-3.5 h-3.5 text-[#E64A32]" />
             <span>Ask natural language analytical questions. Code is calculated & verified.</span>
           </div>
 

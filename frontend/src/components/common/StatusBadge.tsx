@@ -14,17 +14,17 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', c
     verified: {
       label: 'Verified',
       icon: CheckCircle2,
-      styles: 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30',
+      styles: 'bg-[#E64A32]/20 text-[#E64A32] border-[#E64A32]/40',
     },
     warning: {
       label: 'Warning',
       icon: AlertTriangle,
-      styles: 'bg-amber-950/60 text-amber-400 border-amber-500/30',
+      styles: 'bg-[#E18230]/20 text-[#E18230] border-[#E18230]/40',
     },
     refused: {
       label: 'Refused',
       icon: XCircle,
-      styles: 'bg-rose-950/60 text-rose-400 border-rose-500/30',
+      styles: 'bg-[#E64A32]/30 text-[#F4F5EC] border-[#E64A32]',
     },
     failed: {
       label: 'Failed',
@@ -34,12 +34,12 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', c
     processing: {
       label: 'Processing',
       icon: Clock,
-      styles: 'bg-sky-950/60 text-sky-400 border-sky-500/30 animate-pulse',
+      styles: 'bg-[#E18230]/20 text-[#E18230] border-[#E18230]/30 animate-pulse',
     },
   }[status] || {
     label: status,
     icon: AlertTriangle,
-    styles: 'bg-slate-800 text-slate-300 border-slate-700',
+    styles: 'bg-[#3C3B39] text-[#F4F5EC] border-[#3C3B39]',
   };
 
   const Icon = config.icon;
@@ -47,7 +47,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', c
   const sizeStyles = {
     sm: 'px-2 py-0.5 text-xs gap-1',
     md: 'px-2.5 py-1 text-xs gap-1.5',
-    lg: 'px-3 py-1.5 text-sm gap-2 font-medium',
+    lg: 'px-3 py-1.5 text-sm gap-2 font-semibold',
   }[size];
 
   return (

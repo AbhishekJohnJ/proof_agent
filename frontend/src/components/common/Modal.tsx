@@ -44,21 +44,21 @@ export const Modal: React.FC<ModalProps> = ({
   }[maxWidth];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#151918]/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div
         className={cn(
-          'w-full bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]',
+          'w-full bg-[#242726] border border-[#3C3B39] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]',
           widthStyles
         )}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#3C3B39] bg-[#151918]/90">
           <div>
-            <h3 className="text-base font-semibold text-slate-100">{title}</h3>
-            {subtitle && <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>}
+            <h3 className="text-base font-bold text-[#F4F5EC]">{title}</h3>
+            {subtitle && <p className="text-xs text-[#F4F5EC]/60 mt-0.5">{subtitle}</p>}
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-[#F4F5EC]/60 hover:text-[#F4F5EC] hover:bg-[#3C3B39] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

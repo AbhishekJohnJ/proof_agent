@@ -26,9 +26,9 @@ export const ProofTabs: React.FC<ProofTabsProps> = ({ analysis }) => {
   ] as const;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-md">
+    <div className="bg-[#242726] border border-[#3C3B39] rounded-xl overflow-hidden shadow-md">
       {/* Tabs Header */}
-      <div className="flex items-center gap-1 bg-slate-950/80 p-2 border-b border-slate-800 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-1 bg-[#151918] p-2 border-b border-[#3C3B39] overflow-x-auto no-scrollbar">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -37,13 +37,13 @@ export const ProofTabs: React.FC<ProofTabsProps> = ({ analysis }) => {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer',
+                'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap cursor-pointer',
                 isActive
-                  ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 shadow-xs'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-[#E64A32]/20 text-[#E64A32] border border-[#E64A32]/40 shadow-xs'
+                  : 'text-[#F4F5EC]/60 hover:text-[#F4F5EC] hover:bg-[#3C3B39]/50'
               )}
             >
-              <Icon className={cn('w-4 h-4', isActive ? 'text-indigo-400' : 'text-slate-400')} />
+              <Icon className={cn('w-4 h-4', isActive ? 'text-[#E64A32]' : 'text-[#F4F5EC]/50')} />
               <span>{tab.label}</span>
             </button>
           );
@@ -51,7 +51,7 @@ export const ProofTabs: React.FC<ProofTabsProps> = ({ analysis }) => {
       </div>
 
       {/* Tab Body */}
-      <div className="p-6 bg-slate-900/90">
+      <div className="p-6 bg-[#242726]">
         {activeTab === 'calculation' && <CalculationPanel calculation={analysis.calculation} />}
         {activeTab === 'code' && <CodePanel codeDetails={analysis.codeDetails} />}
         {activeTab === 'evidence' && <EvidencePanel evidence={analysis.evidence} />}

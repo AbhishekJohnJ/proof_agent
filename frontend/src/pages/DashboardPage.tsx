@@ -19,12 +19,12 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b theme-border pb-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             Good morning
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm theme-text-muted mt-1">
             Analyze your data with answers you can verify.
           </p>
         </div>
@@ -47,7 +47,7 @@ export const DashboardPage: React.FC = () => {
           subtext="Executed in Python sandbox"
           icon={Activity}
           trend="+14% this week"
-          accentColor="indigo"
+          accentColor="red"
         />
         <StatCard
           label="Verified answers"
@@ -55,7 +55,7 @@ export const DashboardPage: React.FC = () => {
           subtext="100% mathematical audit"
           icon={CheckCircle2}
           trend="90.6% success"
-          accentColor="emerald"
+          accentColor="red"
         />
         <StatCard
           label="Datasets"
@@ -70,7 +70,7 @@ export const DashboardPage: React.FC = () => {
           subtext="Strictly audited rules"
           icon={ShieldCheck}
           trend="High confidence"
-          accentColor="emerald"
+          accentColor="red"
         />
       </div>
 
