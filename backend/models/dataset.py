@@ -42,6 +42,8 @@ class CandidateRelationship(BaseModel):
 
 class DatasetMetadata(BaseModel):
     dataset_id: str
+    upload_id: Optional[str] = None
+    raw_sha256: Optional[str] = None
     filename: str
     file_type: str
     rows: int
@@ -49,6 +51,7 @@ class DatasetMetadata(BaseModel):
     file_size_bytes: int
     created_at: str
     status: str = "success"
+    is_duplicate_content: bool = False
     error_message: Optional[str] = None
     description: Optional[str] = None
     source: Optional[str] = "User"
@@ -63,3 +66,4 @@ class DatasetArtifact(BaseModel):
     file_type: str
     profile: DatasetProfile
     metadata: DatasetMetadata
+

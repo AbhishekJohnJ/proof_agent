@@ -18,7 +18,13 @@ class FileManager:
     }
 
     @classmethod
-    def ingest_dataset(cls, file_path: Path, dataset_id: str | None = None) -> Tuple[pd.DataFrame, DatasetMetadata]:
+    def ingest_dataset(
+        cls,
+        file_path: Path,
+        dataset_id: str | None = None,
+        upload_id: str | None = None,
+        raw_sha256: str | None = None
+    ) -> Tuple[pd.DataFrame, DatasetMetadata]:
         ext = file_path.suffix.lower()
         if ext not in cls.SUPPORTED_EXTENSIONS:
             raise ValueError(f"Unsupported file format '{ext}'. Supported formats: {list(cls.SUPPORTED_EXTENSIONS.keys())}")
@@ -30,6 +36,8 @@ class FileManager:
 
         metadata = DatasetMetadata(
             dataset_id=ds_id,
+            upload_id=upload_id,
+            raw_sha256=raw_sha256,
             filename=file_path.name,
             file_type=ext.lstrip("."),
             rows=meta_dict["rows"],
@@ -40,3 +48,4 @@ class FileManager:
         )
 
         return df, metadata
+
