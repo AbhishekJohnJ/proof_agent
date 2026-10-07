@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle2, FileText, X } from 'lucide-react';
-import { Button } from '../common/Button';
 import { Dataset } from '../../types';
 import { uploadDataset } from '../../services/datasets';
 
@@ -74,26 +73,26 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({ onUploaded }) =>
       />
 
       {uploadedFile ? (
-        <div className="bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-5 flex items-center justify-between shadow-xs">
+        <div className="bg-[#E64A32]/15 border border-[#E64A32]/40 rounded-xl p-5 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-emerald-900/50 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-12 h-12 rounded-lg bg-[#E64A32]/20 border border-[#E64A32]/30 flex items-center justify-center text-[#E64A32]">
               <FileText className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="text-base font-semibold text-white font-mono">{uploadedFile.name}</h4>
-                <span className="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-900/60 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
+                <h4 className="text-base font-bold font-mono">{uploadedFile.name}</h4>
+                <span className="px-2 py-0.5 text-xs font-semibold rounded bg-[#E64A32]/20 text-[#E64A32] border border-[#E64A32]/40 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Dataset loaded
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1 font-mono">
+              <p className="text-xs theme-text-muted mt-1 font-mono">
                 {uploadedFile.size} · {uploadedFile.rows.toLocaleString()} rows · {uploadedFile.columns} columns
               </p>
             </div>
           </div>
           <button
             onClick={() => setUploadedFile(null)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800"
+            className="p-1.5 rounded-lg theme-text-muted hover:text-[#E64A32] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -104,36 +103,36 @@ export const UploadDropzone: React.FC<UploadDropzoneProps> = ({ onUploaded }) =>
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer select-none flex flex-col items-center justify-center ${
+          className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer select-none flex flex-col items-center justify-center theme-card ${
             isDragging
-              ? 'border-indigo-500 bg-indigo-950/30'
-              : 'border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/80'
+              ? 'border-[#E64A32] bg-[#E64A32]/10'
+              : 'theme-border hover:border-[#E64A32]/60'
           }`}
         >
-          <div className="w-14 h-14 rounded-full bg-slate-800/80 border border-slate-700 flex items-center justify-center text-indigo-400 mb-4 shadow-sm">
+          <div className="w-14 h-14 rounded-full theme-input border theme-border flex items-center justify-center text-[#E64A32] mb-4 shadow-sm">
             <UploadCloud className="w-7 h-7" />
           </div>
 
-          <h3 className="text-base font-semibold text-slate-200 mb-1">
+          <h3 className="text-base font-bold mb-1">
             Drop your dataset here
           </h3>
-          <p className="text-xs text-slate-400 mb-4">
-            or <span className="text-indigo-400 underline font-medium">browse files</span> from your computer
+          <p className="text-xs theme-text-muted mb-4">
+            or <span className="text-[#E64A32] underline font-bold">browse files</span> from your computer
           </p>
 
-          <span className="px-3 py-1 rounded-full text-[11px] font-mono text-slate-400 bg-slate-800/80 border border-slate-700">
+          <span className="px-3 py-1 rounded-full text-[11px] font-mono theme-text-muted theme-input border theme-border">
             Supported formats: CSV · XLSX · PDF
           </span>
 
           {uploading && (
             <div className="w-full max-w-xs mt-6 space-y-2">
-              <div className="flex justify-between text-xs text-slate-400">
+              <div className="flex justify-between text-xs theme-text-muted font-mono">
                 <span>Uploading dataset...</span>
                 <span>{progress}%</span>
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div className="w-full theme-input h-2 rounded-full overflow-hidden border theme-border">
                 <div
-                  className="bg-indigo-500 h-full transition-all duration-200"
+                  className="bg-[#E64A32] h-full transition-all duration-200"
                   style={{ width: `${progress}%` }}
                 />
               </div>
