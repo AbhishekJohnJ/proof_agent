@@ -164,6 +164,7 @@ def test_kaggle_return_prediction_ml(kaggle_datasets):
         selected_datasets=kaggle_datasets
     )
     res = orchestrator.process_analysis(req)
-    assert res.status == AnalysisStatus.VERIFIED
+    assert res.status == AnalysisStatus.MODEL_PREDICTION
+    assert res.result_kind == "model_prediction"
     assert "[MODEL PREDICTION]" in res.answer
     assert "CatBoostClassifier" in res.answer

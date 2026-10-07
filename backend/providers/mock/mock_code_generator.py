@@ -4,7 +4,13 @@ from backend.providers.base import CodeGenerationProvider
 class MockCodeGenerationProvider(CodeGenerationProvider):
     """Mock Code Generation Provider producing verified Pandas code for multi-table Kaggle datasets and synthetic benchmark tests."""
 
-    def generate_code(self, question: str, dataset_schemas: List[Dict[str, Any]], quality_warnings: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def generate_code(
+        self,
+        question: str,
+        dataset_schemas: List[Dict[str, Any]],
+        quality_warnings: List[Dict[str, Any]],
+        analysis_contract: Any = None
+    ) -> Dict[str, Any]:
         q_lower = question.lower()
         
         # Build lookup from table name -> dataset_id
@@ -123,9 +129,9 @@ import json
 df_ord = pd.read_csv("data/{ds_ord}/data.csv")
 df_ret = pd.read_csv("data/{ds_ret}/data.csv")
 
-ret_cust_ids = df_ret["customer_id"].unique()
-ret_cust_orders = df_ord[df_ord["customer_id"].isin(ret_cust_ids)]
-total_rev = round(float(ret_cust_orders["final_amount"].sum()), 2)
+unique_ret_cust = df_ret[["customer_id"]].drop_duplicates()
+merged = pd.merge(df_ord, unique_ret_cust, on="customer_id", how="inner")
+total_rev = round(float(merged["final_amount"].sum()), 2)
 
 print(json.dumps({{"result": total_rev, "metric": "returning_customers_revenue", "unit": "INR"}}))
 """
@@ -142,9 +148,11 @@ import json
 df_ord = pd.read_csv("data/{ds_ord}/data.csv")
 df_ret = pd.read_csv("data/{ds_ret}/data.csv")
 
+merged = pd.merge(df_ord, df_ret, on="order_id", how="inner")
 total_orders = len(df_ord)
-ret_orders = df_ord["order_id"].isin(df_ret["order_id"]).sum()
+ret_orders = merged["order_id"].nunique()
 rate = round((ret_orders / total_orders) * 100.0, 2)
+cnt = merged["order_id"].count()
 
 print(json.dumps({{"result": float(rate), "metric": "order_return_rate", "unit": "percent"}}))
 """

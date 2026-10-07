@@ -61,10 +61,19 @@ class QueryPlanner:
             query_type=plan_dict.get("query_type", "data_aggregation"),
             datasets_required=plan_dict.get("datasets_required", []),
             documents_required=plan_dict.get("documents_required", []),
+            columns_required=plan_dict.get("columns_required", []),
             operations=formatted_ops,
+            joins=plan_dict.get("joins", []),
+            filters=plan_dict.get("filters", []),
+            aggregations=plan_dict.get("aggregations", []),
+            group_by=plan_dict.get("group_by", []),
+            sorting=plan_dict.get("sorting", []),
             needs_code=plan_dict.get("needs_code", True),
             needs_retrieval=plan_dict.get("needs_retrieval", False),
             is_unanswerable=plan_dict.get("is_unanswerable", False),
             ambiguity_flags=plan_dict.get("ambiguity_flags", []),
-            refusal_reason=plan_dict.get("refusal_reason")
+            refusal_reason=plan_dict.get("refusal_reason"),
+            expected_metric=plan_dict.get("expected_metric"),
+            expected_unit=plan_dict.get("expected_unit"),
+            return_definition=plan_dict.get("return_definition")
         )

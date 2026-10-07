@@ -39,13 +39,16 @@ Every numerical answer returned by ProofAI is backed by **re-runnable, executabl
 
 ## 4. Key Features
 
-1. **Deterministic Data Profiling**: Automatic row/column counting, data type inference, unique value counts, and missing ratio detection without LLM calls.
-2. **Data Quality Engine**: Automated detection of duplicate rows, duplicate candidate keys, mixed currencies (`$`, `€`, `USD`, `JPY`), ambiguous dates (`01/02/2024`), constant columns, and schema anomalies.
-3. **Multi-Table Relational Inference**: Heuristic detection of primary/foreign key relationships across datasets (`customers.csv` ↔ `orders.csv`).
-4. **Document Analysis**: Text extraction and overlapping chunking for PDFs, TXT, and DOCX files with page number tracking.
-5. **Static Code Security Validation**: AST inspection blocking dangerous operations (`os.system`, `subprocess`, `eval`, `exec`, network calls, destructive file operations).
-6. **Verification Engine**: Result validation, re-execution reproducibility testing, evidence accumulation, and confidence scoring.
-7. **Justified Refusal Engine**: Returns structured refusals on missing data, ambiguous queries, or contradictory sources rather than hallucinating wrong answers.
+1. **Proof-Carrying Verification Layer (V1–V13)**: The verifier does NOT trust generated code merely because it executes or is reproducible. It statically inspects AST, tracks runtime dataset access, validates multi-table join key integrity, detects join row explosions (>2.5x expansion), and verifies numerical outputs against an independent reference engine.
+2. **Deterministic AnalysisContract**: Authoritative analytical specification defining datasets required, columns required, joins, filters, aggregations, group-by, sorting, expected result type, and monetary/percentage units (`INR`, `percent`, `count`).
+3. **Independent Reference Engine (`ReferenceEngine`)**: Non-circular, host-side pandas calculation layer that independently validates generated code results before releasing an answer.
+4. **Runtime Dataset Access Tracking**: Sandbox execution monitors file reads and records `accessed_dataset_ids`. Attempting to access unselected tables returns `VERIFICATION_FAILED`.
+5. **Data Quality Engine**: Automated detection of duplicate rows, duplicate candidate keys, mixed currencies (`$`, `€`, `USD`, `JPY`), ambiguous dates (`01/02/2024`), constant columns, and schema anomalies.
+6. **Multi-Table Relational Validation**: Relational integrity checking and join explosion detection across Kaggle Indian E-Commerce tables (`customers`, `orders`, `order_items`, `products`, `returns`, `payments`, `shipments`).
+7. **Document Analysis**: Text extraction and overlapping chunking for PDFs, TXT, and DOCX files with page number tracking.
+8. **Static Code Security Validation**: AST inspection blocking dangerous operations (`os.system`, `subprocess`, `eval`, `exec`, network calls, destructive file operations).
+9. **ML Return Prediction Status Separation**: CatBoost ML risk predictions are explicitly returned with status `MODEL_PREDICTION` and clearly separated from verified historical facts.
+10. **Justified Refusal Engine**: Returns structured refusals on missing data (e.g., net profit queries on tables lacking profit metrics), ambiguous queries, or contradictory sources rather than hallucinating wrong answers.
 
 ---
 

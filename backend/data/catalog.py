@@ -86,9 +86,15 @@ class DatasetCatalog:
         return self.relationships
 
     def resolve_dataset_by_name(self, name: str) -> Optional[str]:
+        if not name:
+            return None
+        if name in self.id_to_table or (hasattr(storage_service, "get_dataset_artifact") and storage_service.get_dataset_artifact(name)):
+            return name
         n_lower = name.lower().strip()
+        if n_lower in self.table_to_id:
+            return self.table_to_id[n_lower]
         for table_name, ds_id in self.table_to_id.items():
-            if table_name.lower() in n_lower or n_lower in table_name.lower():
+            if table_name.lower() == n_lower:
                 return ds_id
         return None
 

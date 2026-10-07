@@ -27,7 +27,13 @@ class CodeGenerationProvider(ABC):
     """Abstract Base Class for Code Generation providers (e.g. DeepSeek-Coder, MockCodeGenerator)."""
 
     @abstractmethod
-    def generate_code(self, question: str, dataset_schemas: List[Dict[str, Any]], quality_warnings: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def generate_code(
+        self,
+        question: str,
+        dataset_schemas: List[Dict[str, Any]],
+        quality_warnings: List[Dict[str, Any]],
+        analysis_contract: Any = None
+    ) -> Dict[str, Any]:
         raise NotImplementedError
 
 class AgentProvider(ABC):

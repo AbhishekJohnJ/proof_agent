@@ -97,11 +97,16 @@ Loose coupling between agent logic and AI models. Allows development and testing
 Isolated Python execution runner enforcing static code validation, strict CPU/memory limits, execution timeouts, and network isolation.
 
 ### 4. Verification Engine ([backend/verification/](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/backend/verification/))
-Proves answer correctness through:
-- Execution output validation
-- Reproducibility checks (re-running code to ensure identical numeric output)
-- Quality check verification (checking if filters correctly handled flagged data quality issues)
-- Ground-truth matching between generated answer and code output
+Proves answer correctness through Phase 4 multi-stage verification (V1–V13):
+- **AST Contract Checking (`StaticContractChecker`)**: Statically inspects generated Python AST against the authoritative `AnalysisContract` to ensure required datasets, columns, join operations (`pd.merge`), aggregations (`sum`, `mean`), group-bys (`groupby`), and filters are explicitly present.
+- **Runtime Dataset Access Tracking**: Monitored file access hooks in execution sandboxes record `accessed_dataset_ids`. Unselected table access triggers `VERIFICATION_FAILED`.
+- **Independent Reference Engine (`ReferenceEngine`)**: Non-circular, host-side pandas calculation layer that calculates independent reference answers from raw table files to validate generated code outputs.
+- **Multi-Table Join & Explosion Validation (`JoinChecker`)**: Validates join key presence and detects dangerous join cardinality explosions (>2.5x row count expansion).
+- **Canonical Answer Consistency**: Ensures primary numerical claims in synthesized text match canonical verified results.
+- **Reproducibility Testing (`ReproducibilityVerifier`)**: Re-runs code in isolated sandbox to verify identical numeric output.
 
-### 5. Refusal Engine ([backend/agents/planner.py](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/backend/agents/planner.py))
-Handles trap questions, missing data, mixed currencies, or unanswerable queries by issuing explicit, structured refusal responses rather than hallucinating an answer.
+### 5. ML Return Model Status Separation ([backend/ml/](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/backend/ml/))
+CatBoost ML return-risk predictions are strictly separated from deterministic historical analyses. Prediction queries output status `MODEL_PREDICTION` with model specifications, ROC-AUC metrics, and clear disclaimers, avoiding false claims of verified historical fact.
+
+### 6. Refusal Engine ([backend/analysis/feasibility.py](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/backend/analysis/feasibility.py))
+Preflight feasibility engine detects missing required metrics (e.g., net profit on sales tables lacking profit data), ambiguous columns, or contradictory sources, returning structured refusals rather than hallucinating answers.
