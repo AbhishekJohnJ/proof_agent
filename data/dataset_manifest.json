@@ -4,6 +4,11 @@
   "local": true,
   "provenance": true,
   "license": "CC0: Public Domain",
+  "currency": "INR",
+  "unit_metadata": {
+    "currency": "INR",
+    "source": "dataset_manifest"
+  },
   "datasets": {
     "customers": {
       "file": "customers.csv",

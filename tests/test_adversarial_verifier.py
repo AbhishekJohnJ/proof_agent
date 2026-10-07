@@ -131,6 +131,10 @@ print(json.dumps({"result": prem["final_amount"].sum()}))"""
 
 # I. Missing filter -> VERIFICATION_FAILED
 def test_adversarial_I_missing_filter():
+    from backend.execution.sandbox import LocalIsolatedSandbox
+    from backend.services.storage import storage_service
+    from backend.verification.operation_verifier import OperationVerifier
+
     contract = AnalysisContract(
         question="What is premium revenue?",
         datasets_required=["ds_kaggle_orders", "ds_kaggle_customers"],
@@ -140,9 +144,28 @@ def test_adversarial_I_missing_filter():
 df_ord = pd.read_csv("data/ds_kaggle_orders/data.csv")
 df_cust = pd.read_csv("data/ds_kaggle_customers/data.csv")
 merged = pd.merge(df_ord, df_cust, on="customer_id")
-print(json.dumps({"result": merged["final_amount"].sum()}))"""
-    # Execution returns total revenue instead of premium revenue, reference check will fail
-    pass
+print(json.dumps({"result": float(merged["final_amount"].sum())}))"""
+
+    art_orders = storage_service.get_dataset_artifact("ds_kaggle_orders")
+    art_cust = storage_service.get_dataset_artifact("ds_kaggle_customers")
+    sandbox = LocalIsolatedSandbox()
+    exec_res = sandbox.execute(code, [art_orders, art_cust])
+    assert exec_res["success"] is True
+
+    op_ver = OperationVerifier.verify_operations(contract, exec_res.get("runtime_operations", []))
+    assert op_ver.is_valid is False
+    assert any("Missing required filter" in err or "Filter" in err for err in op_ver.errors)
+
+    # ProofPolicy evaluation
+    v_res = VerificationResult(
+        v1_code_executed=CheckStatus.PASS,
+        v2_output_exists=CheckStatus.PASS,
+        v3_output_valid_canonical=CheckStatus.PASS,
+        v9_expected_operation_reflected=CheckStatus.FAIL,
+        status="VERIFICATION_FAILED"
+    )
+    status, kind = ProofPolicy.evaluate_policy(v_res, reference_matches=False)
+    assert status == AnalysisStatus.VERIFICATION_FAILED
 
 # J. Wrong group-by -> VERIFICATION_FAILED
 def test_adversarial_J_wrong_group_by():

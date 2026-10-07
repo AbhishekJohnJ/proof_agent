@@ -31,6 +31,7 @@ from backend.verification.proof_policy import ProofPolicy
 from backend.verification.operation_verifier import OperationVerifier
 from backend.analysis.reference_engine import ReferenceEngine
 from backend.services.storage import storage_service
+from backend.services.answer_renderer import AnswerRenderer
 from backend.config import settings
 
 from backend.ml.return_prediction import ReturnPredictionService
@@ -473,8 +474,8 @@ class AnalysisOrchestrator:
         runtime_cols_evidence = exec_res.get("accessed_columns", [])
         if contract.columns_required:
             for col in contract.columns_required:
-                # Check runtime evidence or AST
-                if any(ev.get("column") == col for ev in runtime_cols_evidence) or col in code:
+                # Check runtime evidence strictly (must come from runtime execution evidence)
+                if any(ev.get("column") == col for ev in runtime_cols_evidence):
                     accessed_columns.append(col)
             missing = [c for c in contract.columns_required if c not in accessed_columns]
             if missing:
@@ -511,18 +512,23 @@ class AnalysisOrchestrator:
                 reference_matches = False
                 verification_errors.append(f"Reference Engine failed: {ref_res.get('error')}")
 
-        # Join Validation & Explosion Checker
+        # Join Validation & Explosion Checker (Authoritative contract.joins driven)
         join_evidence = []
         crit_join_issue = False
-        if len(selected_artifacts) >= 2:
-            df_m1 = storage_service.get_dataframe(selected_artifacts[0].dataset_id)
-            df_m2 = storage_service.get_dataframe(selected_artifacts[1].dataset_id)
-            if df_m1 is not None and df_m2 is not None:
-                common_keys = set(df_m1.columns).intersection(set(df_m2.columns))
-                if common_keys:
-                    k = list(common_keys)[0]
-                    exp_card = contract.joins[0].expected_cardinality if contract.joins else None
-                    j_val = JoinChecker.validate_join(df_m1, df_m2, left_key=k, right_key=k, expected_cardinality=exp_card)
+        if contract.joins:
+            for join_spec in contract.joins:
+                left_name = dataset_catalog.resolve_dataset_by_name(join_spec.left_dataset) or join_spec.left_dataset
+                right_name = dataset_catalog.resolve_dataset_by_name(join_spec.right_dataset) or join_spec.right_dataset
+                df_left = storage_service.get_dataframe(left_name)
+                df_right = storage_service.get_dataframe(right_name)
+                if df_left is not None and df_right is not None:
+                    j_val = JoinChecker.validate_join(
+                        df_left, df_right,
+                        left_key=join_spec.left_column,
+                        right_key=join_spec.right_column,
+                        how=join_spec.how or "inner",
+                        expected_cardinality=join_spec.expected_cardinality
+                    )
                     join_evidence.append(j_val)
                     if j_val.get("critical_issue"):
                         crit_join_issue = True
@@ -549,14 +555,16 @@ class AnalysisOrchestrator:
         except TypeError:
             answer = self.analyst.synthesize_answer(request.question, exec_res, evidence_coll.items)
 
-        # V10 Numerical Answer Consistency Check
+        # V10 Numerical & Rendered Answer Consistency Check
         v10_consistent = CheckStatus.PASS
-        if canonical_res and isinstance(canonical_res.result, (int, float)):
-            found_numbers = re.findall(r"\d+(?:\.\d+)?", answer.replace(",", ""))
-            if found_numbers:
-                if not any(abs(float(n) - float(canonical_res.result)) < 1e-2 for n in found_numbers):
-                    v10_consistent = CheckStatus.FAIL
-                    verification_errors.append(f"V10 Mismatch: Answer numerical claim does not match canonical verified result ({canonical_res.result}).")
+        if canonical_res:
+            expected_rendered = AnswerRenderer.render_answer(canonical_res)
+            if canonical_res.result is not None and isinstance(canonical_res.result, (int, float)):
+                found_numbers = re.findall(r"\d+(?:\.\d+)?", answer.replace(",", ""))
+                if found_numbers:
+                    if not any(abs(float(n) - float(canonical_res.result)) < 1e-2 for n in found_numbers):
+                        v10_consistent = CheckStatus.FAIL
+                        verification_errors.append(f"V10 Mismatch: Answer numerical claim does not match canonical verified result ({canonical_res.result}).")
 
         # Data Quality Check Status
         qual_performed = True
@@ -615,32 +623,16 @@ class AnalysisOrchestrator:
 
         # Structured Proof Trace with Real Measured Evidence
         proof_trace = {
-            "analysis_id": analysis_id,
             "question": request.question,
-            "contract": contract.model_dump(),
-            "authorization": {
-                "datasets_authorized": resolved_dataset_ids,
-                "datasets_accessed": accessed_dataset_ids,
-                "unauthorized_access": len([ds for ds in accessed_dataset_ids if ds not in resolved_dataset_ids]) > 0
-            },
-            "runtime_evidence": {
-                "columns": list(set(accessed_columns)),
-                "operations": exec_res.get("runtime_operations", []),
-                "joins": join_evidence
-            },
-            "execution": {
-                "success": exec_res.get("success", False),
-                "execution_ms": execution_ms,
-                "reference_ms": reference_ms,
-                "verification_ms": verification_ms,
-                "total_ms": total_ms
-            },
+            "analysis_contract": contract.model_dump(),
+            "authorized_datasets": resolved_dataset_ids,
+            "accessed_datasets": accessed_dataset_ids,
+            "accessed_columns": list(set(accessed_columns)),
+            "runtime_operations": exec_res.get("runtime_operations", []),
+            "join_evidence": join_evidence,
             "canonical_result": canonical_res.model_dump() if canonical_res else None,
-            "reference": {
-                "result": ref_res,
-                "matches": reference_matches,
-                "reference_ms": reference_ms
-            },
+            "reference_result": ref_res,
+            "reference_match": reference_matches,
             "reproducibility": {
                 "status": repro_status.value,
                 "method": repro_method,
@@ -656,8 +648,15 @@ class AnalysisOrchestrator:
                 "sandbox": exec_res.get("execution_mode", "local_isolated"),
                 "passed": exec_res.get("success", False)
             },
-            "verification": v_result.model_dump(),
-            "final_status": final_analysis_status.value
+            "verification_checks": v_result.model_dump(),
+            "final_status": final_analysis_status.value,
+            "execution": {
+                "success": exec_res.get("success", False),
+                "execution_ms": execution_ms,
+                "reference_ms": reference_ms,
+                "verification_ms": verification_ms,
+                "total_ms": total_ms
+            }
         }
 
         result = AnalysisResult(

@@ -22,3 +22,26 @@ def test_reproducibility_verifier():
     status, diff, method, errors = ReproducibilityVerifier.verify_reproducibility(sandbox, code, initial_res, [])
     assert status == CheckStatus.PASS
     assert len(errors) == 0
+
+def test_dataset_resolver_strict_no_fuzzy_matching():
+    import pytest
+    from backend.data.dataset_resolver import DatasetResolver, DatasetResolverError
+    from backend.analysis.contract_executor import ContractExecutor
+    from backend.models.analysis_contract import AnalysisContract
+
+    # 1. DatasetResolver fails when ds_A does not exist
+    with pytest.raises(DatasetResolverError):
+        DatasetResolver.resolve_dataset("ds_A")
+
+    # 2. ContractExecutor must NOT use ds_A_backup when contract requests ds_A
+    contract = AnalysisContract(
+        question="Test strict resolution",
+        datasets_required=["ds_A"],
+        columns_required=["amount"]
+    )
+    dataset_files = {
+        "ds_A_backup": "tests/fixtures/clean_sales.csv"
+    }
+    result = ContractExecutor.execute(contract, dataset_files)
+    assert result["success"] is False
+    assert "ds_A" in result["error"]

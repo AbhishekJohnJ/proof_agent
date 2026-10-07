@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     APP_NAME: str = "ProofAI"
@@ -29,9 +29,7 @@ class Settings(BaseSettings):
     SANDBOX_ENABLED: bool = False
     MAX_UPLOAD_SIZE_MB: int = 50
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 settings = Settings()
 

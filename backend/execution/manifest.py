@@ -22,5 +22,5 @@ class ExecutionManifest(BaseModel):
             filenames=fnames,
             controlled_paths=cpaths,
             allowed_columns=cols,
-            accessed_dataset_ids=ids  # Populated based on workspace mounts
+            accessed_dataset_ids=[]  # Must start empty and be populated strictly by runtime evidence
         )
