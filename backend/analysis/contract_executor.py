@@ -22,21 +22,33 @@ class ContractExecutor:
         `dataset_files` maps dataset_id or table_name -> pd.DataFrame, Path, or file path str.
         """
         try:
-            # 1. Load DataFrames
+            # 1. Load DataFrames via exact resolution
             dfs: Dict[str, pd.DataFrame] = {}
             datasets_used: List[str] = []
+
+            from backend.data.dataset_resolver import DatasetResolver, DatasetResolverError
+            from backend.services.storage import storage_service
 
             def get_df_by_key(key_name: str) -> Optional[pd.DataFrame]:
                 if key_name in dfs:
                     return dfs[key_name]
-                # Direct key lookup in dataset_files
-                for k, item in dataset_files.items():
-                    if k == key_name or key_name in k or k in key_name:
-                        if isinstance(item, pd.DataFrame):
-                            return item.copy()
-                        fpath = Path(item)
-                        if fpath.exists():
-                            return pd.read_csv(fpath)
+                if dataset_files and key_name in dataset_files:
+                    item = dataset_files[key_name]
+                    if isinstance(item, pd.DataFrame):
+                        return item.copy()
+                    fp = Path(item)
+                    if fp.exists():
+                        return pd.read_csv(fp)
+                try:
+                    res_art = DatasetResolver.resolve_dataset(key_name)
+                    df_resolved = storage_service.get_dataframe(res_art.dataset_id)
+                    if df_resolved is not None:
+                        return df_resolved.copy()
+                    wpath = Path(res_art.workspace_path)
+                    if wpath.exists():
+                        return pd.read_csv(wpath)
+                except DatasetResolverError:
+                    pass
                 return None
 
             for ds_id in contract.datasets_required:
@@ -44,17 +56,11 @@ class ContractExecutor:
                 if df is not None:
                     dfs[ds_id] = df
                     datasets_used.append(ds_id)
-
-            if not dfs and dataset_files:
-                # Fallback to loading whatever dataset files were passed
-                for k, item in dataset_files.items():
-                    if isinstance(item, pd.DataFrame):
-                        dfs[k] = item.copy()
-                    else:
-                        fp = Path(item)
-                        if fp.exists():
-                            dfs[k] = pd.read_csv(fp)
-                    datasets_used.append(k)
+                else:
+                    return {
+                        "success": False,
+                        "error": f"Required dataset '{ds_id}' could not be resolved strictly."
+                    }
 
             if not dfs:
                 return {
@@ -67,7 +73,7 @@ class ContractExecutor:
             join_evidence: List[Dict[str, Any]] = []
 
             # Determine base dataframe
-            main_ds = contract.datasets_required[0] if contract.datasets_required and contract.datasets_required[0] in dfs else list(dfs.keys())[0]
+            main_ds = contract.datasets_required[0]
             current_df = dfs[main_ds].copy()
 
             # 2. Perform Exact Contract Joins
@@ -79,36 +85,34 @@ class ContractExecutor:
                 how = join_spec.how or "inner"
 
                 right_df = get_df_by_key(right_name)
-                if right_df is None and right_name not in dfs:
-                    # Search by short name
-                    for k in dfs.keys():
-                        if right_name in k or k in right_name:
-                            right_df = dfs[k]
-                            break
+                if right_df is None:
+                    return {
+                        "success": False,
+                        "error": f"Join right dataset '{right_name}' could not be resolved strictly."
+                    }
 
-                if right_df is not None:
-                    left_df = current_df if left_name == main_ds or left_name in dfs else current_df
-                    r_cols = [c for c in right_df.columns if c != right_col or left_col == right_col]
-                    
-                    rows_before = len(left_df)
-                    if left_col == right_col:
-                        current_df = pd.merge(left_df, right_df, on=left_col, how=how)
-                    else:
-                        current_df = pd.merge(left_df, right_df, left_on=left_col, right_on=right_col, how=how)
+                left_df = current_df
+                r_cols = [c for c in right_df.columns if c != right_col or left_col == right_col]
+                
+                rows_before = len(left_df)
+                if left_col == right_col:
+                    current_df = pd.merge(left_df, right_df, on=left_col, how=how)
+                else:
+                    current_df = pd.merge(left_df, right_df, left_on=left_col, right_on=right_col, how=how)
 
-                    rows_after = len(current_df)
-                    columns_used.extend([left_col, right_col])
-                    operations_executed.append(f"join({left_name}.{left_col} = {right_name}.{right_col}, how={how})")
-                    join_evidence.append({
-                        "left_dataset": left_name,
-                        "right_dataset": right_name,
-                        "left_column": left_col,
-                        "right_column": right_col,
-                        "how": how,
-                        "rows_before": rows_before,
-                        "rows_after": rows_after,
-                        "duplication_factor": round(rows_after / rows_before, 2) if rows_before > 0 else 1.0
-                    })
+                rows_after = len(current_df)
+                columns_used.extend([left_col, right_col])
+                operations_executed.append(f"join({left_name}.{left_col} = {right_name}.{right_col}, how={how})")
+                join_evidence.append({
+                    "left_dataset": left_name,
+                    "right_dataset": right_name,
+                    "left_column": left_col,
+                    "right_column": right_col,
+                    "how": how,
+                    "rows_before": rows_before,
+                    "rows_after": rows_after,
+                    "duplication_factor": round(rows_after / rows_before, 2) if rows_before > 0 else 1.0
+                })
 
             # Handle special return rate logic if specified in return_definition
             if contract.return_definition and "return" in contract.expected_metric.lower():
@@ -200,7 +204,7 @@ class ContractExecutor:
                     "result": res_val,
                     "metric": contract.expected_metric or f"highest_{agg_col}_by_{group_cols[0]}",
                     "label": res_label,
-                    "unit": contract.expected_unit or "INR",
+                    "unit": contract.expected_unit,
                     "result_type": contract.expected_result_type or "ranked_item",
                     "datasets_used": list(set(datasets_used)),
                     "columns_used": list(set(columns_used)),
@@ -227,7 +231,7 @@ class ContractExecutor:
                     "result": val,
                     "metric": contract.expected_metric or f"{agg_op}_{agg_col}",
                     "label": None,
-                    "unit": contract.expected_unit or ("percent" if "rate" in contract.expected_metric else "INR"),
+                    "unit": contract.expected_unit or ("percent" if contract.expected_metric and "rate" in contract.expected_metric else None),
                     "result_type": contract.expected_result_type or "scalar",
                     "datasets_used": list(set(datasets_used)),
                     "columns_used": list(set(columns_used)),

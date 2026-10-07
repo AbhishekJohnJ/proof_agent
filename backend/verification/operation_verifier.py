@@ -51,20 +51,27 @@ class OperationVerifier:
             elif expected_fn:
                 matching_agg = None
                 mismatch_fn = None
+                mismatch_col = None
+
                 for op in ops:
                     if op.get("operation") == "aggregate":
                         actual_fn = (op.get("function") or "").lower()
                         actual_col = op.get("column")
+
                         if actual_fn == expected_fn:
-                            if not expected_col or not actual_col or expected_col in actual_col or actual_col in expected_col:
+                            if not expected_col or actual_col == expected_col:
                                 matching_agg = op
                                 break
+                            else:
+                                mismatch_col = actual_col
                         else:
                             mismatch_fn = actual_fn
 
                 if not matching_agg:
                     if mismatch_fn:
                         errors.append(f"Aggregation mismatch: contract specified '{expected_fn}' for '{expected_col}', but runtime executed '{mismatch_fn}'.")
+                    elif mismatch_col:
+                        errors.append(f"Aggregation column mismatch: contract specified '{expected_fn}' on '{expected_col}', but runtime aggregated on '{mismatch_col}'.")
                     else:
                         errors.append(f"Missing required aggregation: contract specified '{expected_fn}' on column '{expected_col}', but operation was not found in runtime trace.")
 
@@ -82,13 +89,14 @@ class OperationVerifier:
                 if op.get("operation") == "filter":
                     actual_col = op.get("column")
                     actual_val = str(op.get("value")).lower() if op.get("value") is not None else None
+                    actual_op = op.get("operator", "==")
 
-                    if actual_col and target_col and (actual_col in target_col or target_col in actual_col):
+                    if actual_col and target_col and actual_col == target_col:
                         if actual_val == target_val or target_val is None:
                             matching_filter = op
                             break
                         else:
-                            mismatch_val = actual_val
+                            mismatch_val = op.get("value")
                     elif actual_val == target_val and actual_col:
                         mismatch_col = actual_col
 
@@ -110,10 +118,10 @@ class OperationVerifier:
                 if op.get("operation") == "group_by" or op.get("operation") == "groupby":
                     actual_col = op.get("column")
                     actual_cols = op.get("columns", [])
-                    if actual_col and (actual_col in target_col or target_col in actual_col):
+                    if actual_col and actual_col == target_col:
                         matching_gb = op
                         break
-                    elif actual_cols and any(target_col in c or c in target_col for c in actual_cols):
+                    elif actual_cols and target_col in actual_cols:
                         matching_gb = op
                         break
                     elif actual_col:
@@ -140,8 +148,8 @@ class OperationVerifier:
                     act_left = op.get("left_column") or op.get("on")
                     act_right = op.get("right_column") or op.get("on")
 
-                    left_match = (act_left and left_col and (act_left in left_col or left_col in act_left))
-                    right_match = (act_right and right_col and (act_right in right_col or right_col in act_right))
+                    left_match = (act_left and left_col and act_left == left_col)
+                    right_match = (act_right and right_col and act_right == right_col)
 
                     if left_match and right_match:
                         matching_join = op
@@ -162,7 +170,7 @@ class OperationVerifier:
             for op in ops:
                 if op.get("operation") == "sort":
                     actual_col = op.get("column")
-                    if actual_col and (actual_col in target_col or target_col in actual_col):
+                    if actual_col and actual_col == target_col:
                         matching_sort = op
                         break
             if not matching_sort:

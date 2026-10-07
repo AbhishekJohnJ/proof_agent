@@ -77,10 +77,14 @@ class DatasetResolver:
                 "source": (artifact.metadata.description if artifact.metadata else None) or "registered_dataset"
             }
 
-            unit_metadata = getattr(artifact.metadata, "unit_metadata", {}) or {
-                "currency": None,
-                "source": "dataset_manifest"
-            }
+            raw_unit = getattr(artifact.metadata, "unit_metadata", None)
+            if isinstance(raw_unit, dict) and raw_unit:
+                unit_metadata = raw_unit
+            else:
+                unit_metadata = {
+                    "currency": getattr(artifact.metadata, "currency", None),
+                    "source": "dataset_metadata"
+                }
 
             return ResolvedDatasetArtifact(
                 dataset_id=clean_id,

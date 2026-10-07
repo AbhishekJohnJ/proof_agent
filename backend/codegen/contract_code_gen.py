@@ -192,7 +192,7 @@ print(json.dumps({{"result": rate, "metric": "revenue_return_rate", "unit": "{co
         exec_body.extend(filter_lines)
 
         metric_name = (contract.expected_metric if contract else None) or "result"
-        unit_str = (contract.expected_unit if contract else None) or "INR"
+        unit_str = contract.expected_unit if contract else None
 
         if group_cols and target_col:
             grp_col_str = json.dumps(group_cols)

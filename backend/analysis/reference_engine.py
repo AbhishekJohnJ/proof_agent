@@ -250,7 +250,7 @@ class ReferenceEngine:
                     "result": val,
                     "metric": contract.expected_metric or lbl,
                     "label": lbl,
-                    "unit": contract.expected_unit or "INR",
+                    "unit": contract.expected_unit,
                     "result_type": contract.expected_result_type or "ranked_item"
                 }
 
@@ -270,7 +270,7 @@ class ReferenceEngine:
                     "result": val,
                     "metric": contract.expected_metric or f"{target_op}_{target_col}",
                     "label": None,
-                    "unit": contract.expected_unit or "INR",
+                    "unit": contract.expected_unit,
                     "result_type": contract.expected_result_type or "scalar"
                 }
 
