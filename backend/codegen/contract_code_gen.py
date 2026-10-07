@@ -133,6 +133,22 @@ print(json.dumps({{"result": rate, "metric": "revenue_return_rate", "unit": "{co
                 right_col = j.right_column
                 how = j.how or "inner"
 
+                if dataset_schemas:
+                    left_schema = next((s for s in dataset_schemas if s.get("dataset_id") == j.left_dataset or s.get("filename") == j.left_dataset or s.get("dataset_id") == f"ds_{j.left_dataset}"), None)
+                    right_schema = next((s for s in dataset_schemas if s.get("dataset_id") == j.right_dataset or s.get("filename") == j.right_dataset or s.get("dataset_id") == f"ds_{j.right_dataset}"), None)
+
+                    if left_schema and right_schema:
+                        l_cols = set(left_schema.get("column_names", []))
+                        r_cols = set(right_schema.get("column_names", []))
+
+                        if left_col not in l_cols or right_col not in r_cols:
+                            common = l_cols.intersection(r_cols)
+                            if common:
+                                preferred_keys = ["product_id", "order_id", "customer_id", "return_id"]
+                                best_key = next((k for k in preferred_keys if k in common), list(common)[0])
+                                left_col = best_key
+                                right_col = best_key
+
                 merged_var = f"merged_{idx+1}"
                 if left_col == right_col:
                     join_lines.append(f'{merged_var} = pd.merge({left_var}, {right_var}, on="{left_col}", how="{how}")')
@@ -159,7 +175,9 @@ print(json.dumps({{"result": rate, "metric": "revenue_return_rate", "unit": "{co
         target_op = "sum"
         if contract and contract.aggregations:
             target_col = contract.aggregations[0].column
-            target_op = contract.aggregations[0].operation or "sum"
+            target_op = (contract.aggregations[0].operation or "sum").lower()
+            if target_op in ["avg", "average"]:
+                target_op = "mean"
         elif contract and contract.columns_required:
             for col_cand in contract.columns_required:
                 if col_cand not in group_cols:

@@ -33,10 +33,34 @@ async def upload_file(file: UploadFile = File(...)):
 
     # 1. Tabular Data Upload
     if ext in [".csv", ".xlsx", ".xls", ".json"]:
-        unique_id, clean_filename, save_path = SafeUploadHandler.validate_and_save(file, settings.DATA_DIR)
+        upload_id, dataset_id, raw_sha256, clean_filename, save_path = SafeUploadHandler.validate_and_save(file, settings.DATA_DIR)
         try:
-            dataset_id = f"ds_{unique_id}"
-            df, metadata = FileManager.ingest_dataset(save_path, dataset_id=dataset_id)
+            # Check for duplicate dataset content hash
+            existing_artifact = storage_service.get_dataset_artifact(dataset_id)
+            if existing_artifact:
+                save_path.unlink(missing_ok=True)
+                existing_meta = existing_artifact.metadata.model_dump()
+                existing_meta["is_duplicate_content"] = True
+                existing_meta["upload_id"] = upload_id
+                return {
+                    "type": "dataset",
+                    "upload_id": upload_id,
+                    "dataset_id": dataset_id,
+                    "id": dataset_id,
+                    "filename": clean_filename,
+                    "is_duplicate_content": True,
+                    "raw_sha256": raw_sha256,
+                    "metadata": existing_meta,
+                    "profile": existing_artifact.profile.model_dump(),
+                    "artifact": existing_artifact.model_dump()
+                }
+
+            df, metadata = FileManager.ingest_dataset(
+                save_path,
+                dataset_id=dataset_id,
+                upload_id=upload_id,
+                raw_sha256=raw_sha256
+            )
             metadata.filename = clean_filename
             profile = DataProfiler.profile(dataset_id, clean_filename, df)
             
@@ -44,8 +68,12 @@ async def upload_file(file: UploadFile = File(...)):
 
             return {
                 "type": "dataset",
+                "upload_id": upload_id,
+                "dataset_id": dataset_id,
                 "id": dataset_id,
                 "filename": clean_filename,
+                "is_duplicate_content": False,
+                "raw_sha256": raw_sha256,
                 "metadata": metadata.model_dump(),
                 "profile": profile.model_dump(),
                 "artifact": artifact.model_dump()
@@ -53,6 +81,7 @@ async def upload_file(file: UploadFile = File(...)):
         except Exception as e:
             save_path.unlink(missing_ok=True)
             raise HTTPException(status_code=400, detail=f"Failed to ingest tabular file: {str(e)}")
+
 
     # 2. Unstructured Document Upload
     elif ext in [".pdf", ".txt", ".docx"]:

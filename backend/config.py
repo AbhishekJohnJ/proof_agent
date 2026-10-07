@@ -11,14 +11,21 @@ class Settings(BaseSettings):
     BACKEND_PORT: int = 8000
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
     
-    # Model Providers (mock | qwen | deepseek | custom)
-    LLM_PROVIDER: str = "mock"
-    CODE_GEN_PROVIDER: str = "mock"
+    # Model Providers (mock | ollama | qwen | deepseek)
+    LLM_PROVIDER: str = "ollama"
+    CODE_GEN_PROVIDER: str = "ollama"
     EMBEDDING_PROVIDER: str = "mock"
     
-    LLM_MODEL: str = "qwen3-4b-instruct"
-    CODE_MODEL: str = "deepseek-coder-v2-lite"
+    LLM_MODEL: str = "qwen3:8b"
+    CODE_MODEL: str = "deepseek-coder-v2:16b-lite-instruct-q4_K_M"
     EMBEDDING_MODEL: str = "qwen3-embedding-0.6b"
+
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_PLANNER_MODEL: str = ""
+    OLLAMA_CODE_MODEL: str = ""
+    OLLAMA_TIMEOUT: int = 180
+    OLLAMA_TEMPERATURE: float = 0.0
+    PROOFAI_DEBUG: bool = False
     
     BASE_DIR: Path = Path(__file__).resolve().parent.parent
     DATA_DIR: Path = BASE_DIR / "datasets"

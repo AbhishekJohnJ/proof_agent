@@ -1,11 +1,67 @@
-# ProofAI — Detailed Architecture Guide
+# ProofAI — Core System Architecture
 
-This document details the software architecture, module interaction boundaries, and design patterns.
+```text
+                    USER / UI
+                        │
+                        ▼
+            POST /dataset/upload
+                        │
+                        ▼
+            SHA-256 CONTENT FINGERPRINT
+                        │
+            ┌───────────┴───────────┐
+            │                       │
+     [New Content]          [Duplicate Content]
+            │                       │
+            ▼                       ▼
+    DATASET REGISTRY       REUSE PROFILE & ARTIFACT
+            │                       │
+            └───────────┬───────────┘
+                        │
+                        ▼
+                POST /analysis
+                        │
+                        ▼
+             QWEN3 ANALYSIS PLANNER
+           (Produces AnalysisContract)
+                        │
+                        ▼
+          DETERMINISTIC VALIDATION GATE
+           (Columns, Datasets, Types)
+                        │
+                 valid? │
+                 ┌──────┴──────┐
+                 │             │
+                NO            YES
+                 │             │
+                 ▼             ▼
+              REFUSED     DEEPSEEK CODE GENERATOR
+                           (Sandboxed Pandas Python)
+                               │
+                               ▼
+                       SECURE SANDBOX EXECUTION
+                     (No Network, No Subprocess)
+                               │
+                               ▼
+                        RUNTIME EVIDENCE
+                 (Exact Column Access Log)
+                               │
+                               ├──────────────┐
+                               │              │
+                               ▼              ▼
+                        SANDBOX RESULT  REFERENCE ENGINE
+                               │              │
+                               └──────┬───────┘
+                                      ▼
+                               RESULT COMPARATOR
+                          (Exact Numerical Tolerance)
+                                      │
+                                      ▼
+                                PROOF POLICY
+                         (VERIFIED / REFUSED / FAILED)
+```
 
-## Modular Component Design
-
-* **Ingestion Layer** (`backend/ingestion/`): Decoupled file loaders (`CSVLoader`, `ExcelLoader`, `JSONLoader`) unified under `FileManager`.
-* **Profiling Layer** (`backend/profiling/`): Deterministic `DataProfiler`, `QualityEngine`, `SchemaExtractor`, and `RelationshipDetector`.
-* **Document Engine** (`backend/documents/`): Text extractor (`DocumentExtractor`), overlapping chunker (`DocumentChunker`), and metadata generator.
-* **Provider Layer** (`backend/providers/`): Abstract interfaces (`LLMProvider`, `CodeGenerationProvider`, `EmbeddingProvider`) with development mocks (`MockLLMProvider`, `MockCodeGenerationProvider`, `MockEmbeddingProvider`).
-* **Execution & Verification** (`backend/execution/`, `backend/verification/`): `StaticCodeValidator`, `LocalCodeRunner`, `ResultChecker`, `ReproducibilityVerifier`, `EvidenceAccumulator`, and `ConfidenceCalculator`.
+## System Guarantees
+1. **Deterministic Verification Invariant**: Models propose analysis scripts and query plans, but ProofPolicy, ReferenceEngine, Sandbox, and OperationVerifier remain 100% authoritative over truth status.
+2. **Arbitrary CSV Generalization**: Operates on any user-uploaded CSV without dataset or column hardcoding.
+3. **No Mocks in Production**: Production explicitly communicates with local Ollama (`qwen3:8b` and `deepseek-coder-v2:16b-lite-instruct-q4_K_M`) and throws clean errors when unreachable.

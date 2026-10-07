@@ -27,12 +27,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include Routers
+# Include Routers (Both /api prefix and root level for UI compatibility)
+app.include_router(health_router)
 app.include_router(health_router, prefix="/api")
+
+app.include_router(upload_router)
 app.include_router(upload_router, prefix="/api")
+app.include_router(upload_router, prefix="/dataset")
+
+app.include_router(datasets_router)
 app.include_router(datasets_router, prefix="/api")
+app.include_router(datasets_router, prefix="/dataset")
+
+app.include_router(documents_router)
 app.include_router(documents_router, prefix="/api")
+
+app.include_router(analysis_router)
 app.include_router(analysis_router, prefix="/api")
+
 
 @app.on_event("startup")
 def startup_event():

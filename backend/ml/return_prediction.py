@@ -3,7 +3,10 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import pandas as pd
-from catboost import CatBoostClassifier
+try:
+    from catboost import CatBoostClassifier
+except ImportError:
+    CatBoostClassifier = None
 
 from backend.ml.features import prepare_prediction_dataset, extract_features_and_target, FORBIDDEN_LEAKAGE_COLUMNS
 from backend.services.storage import storage_service
@@ -29,7 +32,7 @@ class ReturnPredictionService:
         if cls._model is not None and cls._metadata is not None:
             return True
 
-        if not cls.MODEL_FILE.exists() or not cls.METADATA_FILE.exists():
+        if CatBoostClassifier is None or not cls.MODEL_FILE.exists() or not cls.METADATA_FILE.exists():
             return False
 
         try:

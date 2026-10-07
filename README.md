@@ -20,11 +20,14 @@ ProofAI is **NOT** a standard chatbot or text-generator. The LLM is **NEVER** th
 
 ---
 
-## 2. Development vs Production Environment
+## 2. Production Real Local Model Integration (Phase 10)
 
-- **Development / Demo Mode**: Uses mock providers (`LLM_PROVIDER=mock`, `CODE_GEN_PROVIDER=mock`) requiring **NO GPU**, zero model downloads, and fast test execution.
-- **Production Readiness**: Built on a provider-independent abstraction layer (`PlannerProvider`, `CodeGenerationProvider`, `EmbeddingProvider`). When Qwen3 and DeepSeek inference servers are online, plug them in via [docs/model-integration.md](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/docs/model-integration.md) with zero changes to the deterministic proof layer.
-- **Sandbox Security Boundary**: `LocalIsolatedSandbox` is provided for local development convenience. `DockerSandbox` with `--network none`, restricted CPU/memory, and read-only host mounts constitutes the production security boundary.
+- **Production Default (Real LLM Inference)**: Uses local **Ollama** serving **Qwen3** (Planning) and **DeepSeek-Coder** (Code Generation).
+  - Configured via environment: `LLM_PROVIDER=ollama`, `CODE_GEN_PROVIDER=ollama`
+  - Automatic platform-aware discovery detects Ollama binary, service endpoint (`http://localhost:11434`), and installed model tags without hardcoded paths.
+  - Setup guide available at [docs/local-model-setup.md](file:///c:/Users/Viviyanpeter/proof_agent/docs/local-model-setup.md).
+- **Deterministic Testing Mode**: Uses mock providers (`LLM_PROVIDER=mock`, `CODE_GEN_PROVIDER=mock`) for CI, unit testing, and fast regression checks without GPU requirements.
+- **Sandbox Security Boundary**: Process-isolated sandbox enforcing read-only least-privilege dataset mounting and static code validation.
 
 ---
 
