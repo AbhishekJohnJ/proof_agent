@@ -1,61 +1,23 @@
-import { DatasetProfile, DocumentMetadata, AnalysisResultData } from '../types';
+const API_BASE =
+  ((import.meta as unknown as { env: Record<string, string> }).env?.VITE_API_URL as string) ||
+  'http://127.0.0.1:8000/api';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api';
-
-export async function uploadFile(file: File) {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const res = await fetch(`${API_BASE}/upload`, {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Upload failed');
+export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || 'API request failed');
+    }
+    return await res.json();
+  } catch (error) {
+    console.warn(`[ProofAI API] Request to ${endpoint} failed.`, error);
+    throw error;
   }
-
-  return res.json();
-}
-
-export async function fetchDatasets() {
-  const res = await fetch(`${API_BASE}/datasets`);
-  if (!res.ok) throw new Error('Failed to fetch datasets');
-  return res.json();
-}
-
-export async function fetchDatasetProfile(datasetId: string): Promise<DatasetProfile> {
-  const res = await fetch(`${API_BASE}/datasets/${datasetId}/profile`);
-  if (!res.ok) throw new Error('Failed to fetch dataset profile');
-  return res.json();
-}
-
-export async function fetchDocuments(): Promise<DocumentMetadata[]> {
-  const res = await fetch(`${API_BASE}/documents`);
-  if (!res.ok) throw new Error('Failed to fetch documents');
-  return res.json();
-}
-
-export async function submitQuery(
-  question: string,
-  selectedDatasets: string[],
-  selectedDocuments: string[]
-): Promise<AnalysisResultData> {
-  const res = await fetch(`${API_BASE}/analysis/query`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      question,
-      selected_datasets: selectedDatasets,
-      selected_documents: selectedDocuments,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.detail || 'Analysis request failed');
-  }
-
-  return res.json();
 }

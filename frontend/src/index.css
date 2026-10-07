@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  
+  body {
+    font-family: var(--font-sans);
+    background-color: #030712; /* slate-950 */
+    color: #f8fafc; /* slate-50 */
+    overflow-x: hidden;
+  }
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Subtle code font styling */
+code, pre, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Subtle glass background */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+}
+
+/* Pulse keyframes for verification engine status */
+@keyframes pulse-emerald {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.95); }
+}
+
+.animate-pulse-emerald {
+  animation: pulse-emerald 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

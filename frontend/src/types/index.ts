@@ -1,95 +1,147 @@
-export interface QualityWarning {
-  severity: 'warning' | 'critical' | 'info';
-  type: string;
-  message: string;
-  affected_columns: string[];
+export type AnalysisStatus = 'verified' | 'warning' | 'refused' | 'failed' | 'processing';
+export type ConfidenceLevel = 'high' | 'medium' | 'low';
+export type FileType = 'csv' | 'xlsx' | 'pdf';
+
+export interface Dataset {
+  id: string;
+  name: string;
+  type: FileType;
+  rows: number;
+  columns: number;
+  size: string;
+  updatedAt: string;
+  status: 'ready' | 'processing' | 'error';
+  missingValuesPct: number;
+  duplicateRows: number;
+  warningCount: number;
+  columnNames: string[];
 }
 
 export interface ColumnProfile {
   name: string;
-  inferred_type: string;
-  missing_count: number;
-  missing_percentage: number;
-  unique_count: number;
-  sample_values: any[];
-  has_mixed_units: boolean;
-  is_constant: boolean;
+  inferredType: 'string' | 'number' | 'date' | 'boolean';
+  missingCount: number;
+  missingPercentage: number;
+  uniqueCount: number;
+  sampleValues: (string | number)[];
 }
 
-export interface DatasetProfile {
-  dataset_id: string;
-  filename: string;
-  rows: number;
-  columns: number;
-  column_names: string[];
-  missing_values_total: number;
-  duplicate_rows: number;
-  column_profiles: ColumnProfile[];
-  quality_status: 'good' | 'medium' | 'poor' | 'unprocessable';
-  quality_warnings: QualityWarning[];
+export interface QualityWarning {
+  id: string;
+  severity: 'critical' | 'warning' | 'info';
+  type: string;
+  message: string;
+  affectedColumns?: string[];
 }
 
-export interface DocumentMetadata {
-  document_id: string;
-  filename: string;
-  file_type: string;
-  page_count: number;
-  chunk_count: number;
-  file_size_bytes: number;
-  created_at: string;
-  status: string;
-}
-
-export type CheckStatus = 'PASS' | 'FAIL' | 'NOT_CHECKED' | 'NOT_APPLICABLE';
-
-export interface VerificationResult {
-  executed: CheckStatus;
-  execution_success: CheckStatus;
-  output_present: CheckStatus;
-  output_valid: CheckStatus;
-  expected_type_matched: CheckStatus;
-  reproducible: CheckStatus;
-  selected_datasets_used: CheckStatus;
-  result_consistent: CheckStatus;
-  quality_check_performed: boolean;
-  quality_issues_found: boolean;
-  critical_quality_issues: boolean;
-  status: 'VERIFIED' | 'VERIFICATION_FAILED' | 'REFUSED' | 'UNVERIFIED';
-  confidence_score: number;
-  comparison_method: string;
-  numeric_tolerance_difference: number;
-  errors: string[];
-  warnings: string[];
+export interface DataQualityReport {
+  requiredColumnsPresent: boolean;
+  numericFieldsValid: boolean;
+  noRelevantMissingValues: boolean;
+  duplicateRowsCount: number;
+  duplicateRowsDetected: boolean;
+  currencyMismatch: boolean;
+  missingValuesMap: Record<string, number>;
+  warnings: QualityWarning[];
+  impactOnAnswer: string;
+  impactLevel: 'low' | 'medium' | 'high';
 }
 
 export interface EvidenceItem {
-  type: 'data' | 'document' | 'code' | 'execution' | 'verification';
-  source: string;
-  description: string;
-  details: Record<string, any>;
-  page_number?: number;
-  chunk_id?: string;
-  dataset_id?: string;
-  columns_used?: string[];
+  id: string;
+  document: string;
+  page?: number;
+  section?: string;
+  excerpt: string;
+  relevance: number; // 0 to 1
+  fileType?: FileType;
+  indexedChunks?: number;
 }
 
-export interface AnalysisResultData {
-  analysis_id: string;
-  question: string;
-  answer: string;
-  status: 'RECEIVED' | 'PLANNED' | 'CODE_GENERATED' | 'CODE_VALIDATED' | 'EXECUTING' | 'EXECUTION_FAILED' | 'VERIFYING' | 'VERIFIED' | 'VERIFICATION_FAILED' | 'REFUSED' | 'MODEL_NOT_CONFIGURED';
-  code?: string;
-  expected_result_type?: string;
-  execution_result?: Record<string, any>;
-  canonical_result?: {
-    result: any;
-    metric: string;
-    unit?: string;
+export interface CalculationDetails {
+  formula: string;
+  inputs: Record<string, string | number>;
+  steps: { label: string; expression: string; result: string }[];
+  result: string | number;
+  validations: {
+    numericResultValidated: boolean;
+    requiredFieldsPresent: boolean;
+    calculationSuccessful: boolean;
   };
-  evidence: EvidenceItem[];
-  verification?: VerificationResult;
-  confidence: number;
-  refusal_reason?: string;
-  warnings: string[];
-  error_message?: string;
+}
+
+export interface CodeExecutionDetails {
+  code: string;
+  executionStatus: 'Successful' | 'Failed' | 'Timeout';
+  executionTime: string;
+  environment: 'Sandboxed Python 3.11' | 'Isolated Container';
+  outputType: 'Numeric' | 'Table' | 'Chart' | 'Refusal';
+  reproducible: boolean;
+  stdout?: string;
+}
+
+export interface TraceStep {
+  timestamp: string;
+  step: string;
+  status: 'completed' | 'in_progress' | 'warning' | 'failed';
+  details?: string;
+}
+
+export interface Verification {
+  executionSuccessful: boolean;
+  reproducible: boolean;
+  requiredFieldsPresent: boolean;
+  dataQualityPassed: boolean;
+  sourceConflicts: boolean;
+  confidenceReason: string[];
+}
+
+export interface Analysis {
+  id: string;
+  question: string;
+  datasetId: string;
+  datasetName: string;
+  status: AnalysisStatus;
+  confidence: ConfidenceLevel;
+  answer?: string;
+  explanation?: string;
+  date: string;
+  timestamp: string;
+  kpis?: { label: string; value: string }[];
+  calculation?: CalculationDetails;
+  codeDetails?: CodeExecutionDetails;
+  evidence?: EvidenceItem[];
+  dataQuality?: DataQualityReport;
+  trace?: TraceStep[];
+  verification?: Verification;
+  charts?: {
+    type: 'monthly_growth' | 'regional_revenue' | 'product_profit';
+    title: string;
+    subtitle: string;
+  };
+  // Refusal specific
+  refusalDetails?: {
+    reason: string;
+    availableFields: string[];
+    missingFields: string[];
+    whyStopped: string;
+  };
+  // Conflict specific
+  conflictDetails?: {
+    conflictType: string;
+    sourceA: { name: string; val: string };
+    sourceB: { name: string; val: string };
+    explanation: string;
+  };
+}
+
+export interface IndexedDocument {
+  id: string;
+  filename: string;
+  fileType: FileType;
+  pages: number;
+  indexedChunks: number;
+  status: 'Indexed' | 'Processing' | 'Failed';
+  uploadedAt: string;
+  sections: { title: string; page: number; snippet: string }[];
 }
