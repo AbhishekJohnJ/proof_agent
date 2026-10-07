@@ -41,16 +41,7 @@ class LocalIsolatedSandbox(SandboxExecutionEnvironment):
                     shutil.copy2(src_file, ds_dir / src_file.name)
                     selected_ids.add(artifact.dataset_id)
 
-            # Also expose other workspace datasets so access to unselected datasets can be detected!
-            from backend.services.storage import storage_service
-            for ds_id, art in storage_service.dataset_artifacts.items():
-                if ds_id not in selected_ids:
-                    unsel_dir = data_dir / ds_id
-                    unsel_dir.mkdir(parents=True, exist_ok=True)
-                    src_f = Path(art.workspace_path)
-                    if src_f.exists():
-                        shutil.copy2(src_f, unsel_dir / f"data{src_f.suffix.lower()}")
-                        shutil.copy2(src_f, unsel_dir / src_f.name)
+            # Enforce Least Privilege: ONLY mount contract authorized datasets!
 
             # Inject dataset access auditing header
             audit_header = """import builtins, json, os, atexit

@@ -75,6 +75,7 @@ class MockLLMProvider(LLMProvider):
                 "columns_required": ["customer_id", "customer_segment", "final_amount"],
                 "joins": [{"left_dataset": ds_ord, "right_dataset": ds_cust, "left_column": "customer_id", "right_column": "customer_id"}],
                 "group_by": ["customer_segment"],
+                "aggregations": [{"operation": "mean", "column": "final_amount"}],
                 "operations": [
                     {"type": "join", "left_column": "customer_id", "right_column": "customer_id"},
                     {"type": "group_by", "column": "customer_segment"},
@@ -113,6 +114,7 @@ class MockLLMProvider(LLMProvider):
                 "columns_required": ["product_id", "category", "item_revenue"],
                 "joins": [{"left_dataset": ds_items, "right_dataset": ds_prods, "left_column": "product_id", "right_column": "product_id"}],
                 "group_by": ["category"],
+                "aggregations": [{"operation": "sum", "column": "item_revenue"}],
                 "operations": [
                     {"type": "join", "left_column": "product_id", "right_column": "product_id"},
                     {"type": "group_by", "column": "category"},
@@ -135,6 +137,7 @@ class MockLLMProvider(LLMProvider):
                 "columns_required": ["customer_id", "customer_segment", "final_amount"],
                 "joins": [{"left_dataset": ds_ord, "right_dataset": ds_cust, "left_column": "customer_id", "right_column": "customer_id"}],
                 "filters": [{"column": "customer_segment", "value": "Premium"}],
+                "aggregations": [{"operation": "sum", "column": "final_amount"}],
                 "operations": [
                     {"type": "join", "left_column": "customer_id", "right_column": "customer_id"},
                     {"type": "filter", "column": "customer_segment", "value": "Premium"},
@@ -157,6 +160,7 @@ class MockLLMProvider(LLMProvider):
                 "columns_required": ["customer_id", "state", "final_amount"],
                 "joins": [{"left_dataset": ds_ord, "right_dataset": ds_cust, "left_column": "customer_id", "right_column": "customer_id"}],
                 "group_by": ["state"],
+                "aggregations": [{"operation": "sum", "column": "final_amount"}],
                 "operations": [
                     {"type": "join", "left_column": "customer_id", "right_column": "customer_id"},
                     {"type": "group_by", "column": "state"},
@@ -178,6 +182,7 @@ class MockLLMProvider(LLMProvider):
                 "documents_required": [],
                 "columns_required": ["customer_id", "final_amount"],
                 "joins": [{"left_dataset": ds_ord, "right_dataset": ds_ret, "left_column": "customer_id", "right_column": "customer_id"}],
+                "aggregations": [{"operation": "sum", "column": "final_amount"}],
                 "operations": [
                     {"type": "join", "left_column": "customer_id", "right_column": "customer_id"},
                     {"type": "aggregate", "column": "final_amount", "operation": "sum"}

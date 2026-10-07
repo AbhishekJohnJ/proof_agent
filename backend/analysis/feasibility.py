@@ -34,6 +34,10 @@ class FeasibilityEngine:
         if ("revenue" in q_lower or "sales" in q_lower or "amount" in q_lower or "count" in q_lower) and not datasets and not documents:
             return False, RefusalReason.INSUFFICIENT_DATA, "No dataset or document was selected.", ambiguities
 
+        # 2. Mixed Currency check for currency conversion/comparison questions without source
+        if ("usd" in q_lower and "eur" in q_lower) or "exchange rate" in q_lower or "convert currency" in q_lower:
+            return False, RefusalReason.MIXED_CURRENCY, "Cannot compare or convert USD and EUR without an authoritative exchange-rate source.", ambiguities
+
         if datasets:
             all_cols = []
             has_critical_mixed_currency = False
@@ -53,22 +57,22 @@ class FeasibilityEngine:
                     elif w.type == "ambiguous_date":
                         has_ambiguous_date = True
 
-            # 2. Missing profit / cost / margin check
+            # 3. Missing profit / cost / margin check
             if "profit" in q_lower or "margin" in q_lower:
                 if not any(c in all_cols for c in ["profit", "net_profit", "margin", "cost"]):
                     return False, RefusalReason.INSUFFICIENT_DATA, "Requested metric (profit) is absent from dataset schema.", ambiguities
 
-            # 3. Missing tax / deduction check
+            # 4. Missing tax / deduction check
             if "tax" in q_lower or "deduction" in q_lower:
                 if not any(c in all_cols for c in ["tax", "vat", "deduction"]):
                     return False, RefusalReason.INSUFFICIENT_DATA, "Requested column (tax) is absent from dataset schema.", ambiguities
 
-            # 4. Ambiguous date check when filtering by date/quarter
+            # 5. Ambiguous date check when filtering by date/quarter
             if ("q1" in q_lower or "q2" in q_lower or "q3" in q_lower or "q4" in q_lower or "month" in q_lower or "date" in q_lower or "quarter" in q_lower) and has_ambiguous_date:
                 ambiguities.append("ambiguous_date_format")
                 return False, RefusalReason.AMBIGUOUS_DATE, "Date column contains ambiguous date formats (day/month order unconfirmed).", ambiguities
 
-            # 5. Mixed Currency check when comparing or calculating amounts on mixed currency dataset
+            # 6. Mixed Currency check when comparing or calculating amounts on mixed currency dataset
             if ("compare" in q_lower or "total" in q_lower or "sum" in q_lower or "revenue" in q_lower or "usd" in q_lower or "eur" in q_lower) and has_critical_mixed_currency:
                 return False, RefusalReason.MIXED_CURRENCY, "Cannot compare or aggregate revenue due to unhedged mixed currency values.", ambiguities
 

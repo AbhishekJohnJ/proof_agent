@@ -18,6 +18,7 @@ class AnalysisStatus(str, Enum):
     REFUSED = "REFUSED"
     MODEL_NOT_CONFIGURED = "MODEL_NOT_CONFIGURED"
     MODEL_PREDICTION = "MODEL_PREDICTION"
+    DOCUMENT_SUPPORTED = "DOCUMENT_SUPPORTED"
 
 class CanonicalResult(BaseModel):
     result: Any
@@ -53,7 +54,7 @@ class AnalysisResult(BaseModel):
     question: str
     answer: str
     status: AnalysisStatus
-    result_kind: str = "verified_analysis"  # verified_analysis | model_prediction | refusal | verification_failed
+    result_kind: str = "verified_analysis"  # verified_analysis | model_prediction | refusal | verification_failed | document_supported
     resolved_dataset_ids: List[str] = Field(default_factory=list)
     analysis_contract: Optional[AnalysisContract] = None
     code: Optional[str] = None
@@ -72,4 +73,3 @@ class AnalysisResult(BaseModel):
     warnings: List[str] = Field(default_factory=list)
     error_message: Optional[str] = None
     attempts_count: int = 1
-

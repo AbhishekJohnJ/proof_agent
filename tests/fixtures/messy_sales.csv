@@ -1,0 +1,5 @@
+date,store,category,final_amount,currency,customer_id
+01/02/2025,Store_A,Electronics,12000.0,$ USD,CUST001
+03/04/2025,Store_A,Electronics,12000.0,EUR,CUST001
+05/06/2025,Store_B,,INVALID_NUM,INR,CUST002
+07/08/2025,,Electronics,-500.0,USD,CUST003

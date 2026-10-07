@@ -24,19 +24,29 @@ def load_benchmark_manifest():
 
 @pytest.fixture(scope="module", autouse=True)
 def prepare_benchmark_data():
-    sample_dir = Path("datasets/sample")
-    for csv_file in ["sales.csv", "messy_sales.csv", "customers.csv", "orders.csv"]:
-        fpath = sample_dir / csv_file
-        if fpath.exists():
+    search_dirs = [Path("tests/fixtures"), Path("datasets/sample")]
+    for csv_file in ["sales.csv", "clean_sales.csv", "messy_sales.csv", "customers.csv", "orders.csv"]:
+        fpath = None
+        for d in search_dirs:
+            candidate = d / csv_file
+            if candidate.exists():
+                fpath = candidate
+                break
+        if fpath:
             df, meta = FileManager.ingest_dataset(fpath, dataset_id=f"ds_bm_{csv_file}")
             meta.filename = csv_file
             profile = DataProfiler.profile(meta.dataset_id, csv_file, df)
             storage_service.save_dataset(meta, fpath, df, profile)
 
-    doc_dir = Path("documents/sample")
+    doc_dirs = [Path("tests/fixtures"), Path("documents/sample")]
     for txt_file in ["annual_report.txt", "policy.txt"]:
-        fpath = doc_dir / txt_file
-        if fpath.exists():
+        fpath = None
+        for d in doc_dirs:
+            candidate = d / txt_file
+            if candidate.exists():
+                fpath = candidate
+                break
+        if fpath:
             doc_id = f"doc_bm_{txt_file}"
             pages = DocumentExtractor.extract_pages(fpath)
             chunks = DocumentChunker.create_chunks(doc_id, txt_file, pages)
@@ -67,6 +77,8 @@ def test_run_psi08_benchmark_cases():
             assert res.status == AnalysisStatus.VERIFIED, f"Case {case['id']} ({case['name']}) failed to verify (got {res.status})."
             if case["expected_result"] is not None and res.canonical_result:
                 assert abs(float(res.canonical_result.result) - float(case["expected_result"])) < 1e-2
+        elif expected_outcome == "DOCUMENT_SUPPORTED":
+            assert res.status == AnalysisStatus.DOCUMENT_SUPPORTED, f"Case {case['id']} ({case['name']}) expected DOCUMENT_SUPPORTED but got {res.status}."
         elif expected_outcome == "REFUSED":
             assert res.status == AnalysisStatus.REFUSED, f"Case {case['id']} ({case['name']}) expected REFUSED but got {res.status}."
             if case["expected_refusal_reason"]:
