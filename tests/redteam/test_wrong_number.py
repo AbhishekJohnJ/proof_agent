@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 from backend.models.query import AnalysisRequest
 from backend.models.analysis import AnalysisStatus
 from backend.api.dependencies import get_orchestrator

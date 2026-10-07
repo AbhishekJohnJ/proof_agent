@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 from backend.models.verification import CheckStatus, VerificationResult
 from backend.models.analysis import AnalysisStatus
 from backend.models.analysis import CanonicalResult

@@ -20,6 +20,14 @@ ProofAI is **NOT** a standard chatbot or text-generator. The LLM is **NEVER** th
 
 ---
 
+## 2. Development vs Production Environment
+
+- **Development / Demo Mode**: Uses mock providers (`LLM_PROVIDER=mock`, `CODE_GEN_PROVIDER=mock`) requiring **NO GPU**, zero model downloads, and fast test execution.
+- **Production Readiness**: Built on a provider-independent abstraction layer (`PlannerProvider`, `CodeGenerationProvider`, `EmbeddingProvider`). When Qwen3 and DeepSeek inference servers are online, plug them in via [docs/model-integration.md](file:///Users/Jivithesh/Desktop/PROJECTS/proof_agent/docs/model-integration.md) with zero changes to the deterministic proof layer.
+- **Sandbox Security Boundary**: `LocalIsolatedSandbox` is provided for local development convenience. `DockerSandbox` with `--network none`, restricted CPU/memory, and read-only host mounts constitutes the production security boundary.
+
+---
+
 ## 2. Strong Phase 5 Verification Invariant
 
 AN ANSWER MAY BE MARKED **VERIFIED** ONLY IF:

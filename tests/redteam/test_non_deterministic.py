@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 from backend.execution.sandbox import LocalIsolatedSandbox
 from backend.verification.reproducibility import ReproducibilityVerifier
 

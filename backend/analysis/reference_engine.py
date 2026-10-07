@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Optional, Union
 from backend.models.analysis_contract import AnalysisContract
 from backend.data.dataset_resolver import DatasetResolver, DatasetResolverError
 from backend.data.column_resolver import ColumnResolver, ColumnResolverError
+from backend.data.dataset_cache import DatasetCache
 from backend.services.storage import storage_service
 
 class ReferenceEngineError(Exception):
@@ -56,21 +57,23 @@ class ReferenceEngine:
                     res_artifact = DatasetResolver.resolve_dataset(ds_id)
                     w_path = Path(res_artifact.workspace_path)
                     if w_path.exists():
-                        dfs[ds_id] = pd.read_csv(w_path)
+                        df_cached = DatasetCache.get_dataframe(w_path)
+                        if df_cached is not None:
+                            dfs[ds_id] = df_cached
                     else:
                         if dataset_files and ds_id in dataset_files:
                             item = dataset_files[ds_id]
                             if isinstance(item, pd.DataFrame):
                                 dfs[ds_id] = item.copy()
                             else:
-                                dfs[ds_id] = pd.read_csv(Path(item))
+                                dfs[ds_id] = DatasetCache.get_dataframe(Path(item)) or pd.read_csv(Path(item))
                 except DatasetResolverError:
                     if dataset_files and ds_id in dataset_files:
                         item = dataset_files[ds_id]
                         if isinstance(item, pd.DataFrame):
                             dfs[ds_id] = item.copy()
                         else:
-                            dfs[ds_id] = pd.read_csv(Path(item))
+                            dfs[ds_id] = DatasetCache.get_dataframe(Path(item)) or pd.read_csv(Path(item))
                     else:
                         df_storage = storage_service.get_dataframe(ds_id)
                         if df_storage is not None:

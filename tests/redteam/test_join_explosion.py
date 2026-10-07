@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 import pandas as pd
 from backend.verification.join_checker import JoinChecker
 

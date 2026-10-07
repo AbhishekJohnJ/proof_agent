@@ -4,6 +4,8 @@ from backend.services.storage import storage_service
 from backend.ingestion.file_manager import FileManager
 from backend.profiling.profiler import DataProfiler
 
+pytestmark = pytest.mark.redteam
+
 @pytest.fixture(scope="module", autouse=True)
 def setup_redteam_datasets():
     fixtures_dir = Path("tests/fixtures")

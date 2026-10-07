@@ -1,6 +1,8 @@
 import json
 import pytest
 from pathlib import Path
+
+pytestmark = pytest.mark.benchmark
 from backend.services.storage import storage_service
 from backend.ingestion.file_manager import FileManager
 from backend.profiling.profiler import DataProfiler

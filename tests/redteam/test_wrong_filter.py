@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 from backend.verification.contract_validator import ContractValidator
 from backend.models.analysis_contract import AnalysisContract, ContractFilter
 

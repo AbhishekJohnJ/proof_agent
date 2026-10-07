@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 from backend.codegen.validator import StaticCodeValidator
 
 def test_malicious_security_escapes_fail_ast_validation():

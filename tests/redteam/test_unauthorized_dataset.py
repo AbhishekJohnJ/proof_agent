@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.redteam
 from backend.execution.sandbox import LocalIsolatedSandbox
 from backend.models.dataset import DatasetArtifact, DatasetMetadata, DatasetProfile
 from datetime import datetime

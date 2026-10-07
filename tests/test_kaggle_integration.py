@@ -1,6 +1,8 @@
 import pytest
 import json
 from pathlib import Path
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
 from backend.models.query import AnalysisRequest
 from backend.models.analysis import AnalysisStatus
 from backend.api.dependencies import get_orchestrator
