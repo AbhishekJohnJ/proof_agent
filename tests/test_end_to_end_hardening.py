@@ -35,7 +35,7 @@ def test_1_clean_sales_revenue_verified():
     assert result.verification.status == "VERIFIED"
     assert result.canonical_result is not None
     assert result.canonical_result.result == 9350.0  # Sum of 1500+850+2200+450+1250+3100
-    assert "9350" in result.answer
+    assert "9,350" in result.answer or "9350" in result.answer.replace(",", "")
 
 # TEST 2: Upload dataset -> Code execution fails -> Result must NOT be verified
 def test_2_failed_execution_not_verified():

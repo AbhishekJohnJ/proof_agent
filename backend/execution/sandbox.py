@@ -43,9 +43,12 @@ class LocalIsolatedSandbox(SandboxExecutionEnvironment):
 
             # Enforce Least Privilege: ONLY mount contract authorized datasets!
 
-            # Inject dataset access auditing header
+            # Inject comprehensive runtime column access and operation tracking audit header
             audit_header = """import builtins, json, os, atexit
 _proofai_accessed = set()
+_proofai_cols = []
+_proofai_ops = []
+
 _orig_open = builtins.open
 def _audit_open(file, *args, **kwargs):
     fstr = str(file)
@@ -53,8 +56,50 @@ def _audit_open(file, *args, **kwargs):
         _proofai_accessed.add(fstr)
     return _orig_open(file, *args, **kwargs)
 builtins.open = _audit_open
+
+try:
+    import pandas as pd
+    _orig_read_csv = pd.read_csv
+    def _audit_read_csv(filepath_or_buffer, *args, **kwargs):
+        df = _orig_read_csv(filepath_or_buffer, *args, **kwargs)
+        ds_name = str(filepath_or_buffer)
+        
+        orig_getitem = df.__getitem__
+        def _audit_getitem(item):
+            if isinstance(item, str):
+                _proofai_cols.append({"dataset": ds_name, "column": item, "operation": "read"})
+            elif isinstance(item, list):
+                for col in item:
+                    if isinstance(col, str):
+                        _proofai_cols.append({"dataset": ds_name, "column": col, "operation": "read"})
+            return orig_getitem(item)
+        df.__getitem__ = _audit_getitem
+
+        orig_merge = df.merge
+        def _audit_merge(right, *m_args, **m_kwargs):
+            on = m_kwargs.get("on") or (m_args[0] if m_args else None)
+            left_on = m_kwargs.get("left_on")
+            right_on = m_kwargs.get("right_on")
+            _proofai_ops.append({"operation": "join", "on": on, "left_on": left_on, "right_on": right_on})
+            return orig_merge(right, *m_args, **m_kwargs)
+        df.merge = _audit_merge
+
+        orig_groupby = df.groupby
+        def _audit_groupby(by, *g_args, **g_kwargs):
+            by_cols = [by] if isinstance(by, str) else list(by)
+            _proofai_ops.append({"operation": "groupby", "by": by_cols})
+            return orig_groupby(by, *g_args, **g_kwargs)
+        df.groupby = _audit_groupby
+
+        return df
+    pd.read_csv = _audit_read_csv
+except Exception:
+    pass
+
 def _report_access():
     print("__PROOFAI_ACCESSED__:" + json.dumps(list(_proofai_accessed)))
+    print("__PROOFAI_COLS__:" + json.dumps(_proofai_cols))
+    print("__PROOFAI_OPS__:" + json.dumps(_proofai_ops))
 atexit.register(_report_access)
 """
             full_script_code = audit_header + "\n" + code
@@ -75,8 +120,10 @@ atexit.register(_report_access)
                 raw_stdout = res.stdout[:self.limits.max_output_bytes].strip()
                 stderr = res.stderr[:self.limits.max_output_bytes].strip()
 
-                # Extract accessed files from stdout
+                # Extract accessed files, cols, ops from stdout
                 accessed_files = []
+                accessed_cols = []
+                runtime_ops = []
                 accessed_dataset_ids = []
                 clean_stdout_lines = []
 
@@ -84,6 +131,16 @@ atexit.register(_report_access)
                     if line.startswith("__PROOFAI_ACCESSED__:"):
                         try:
                             accessed_files = json.loads(line.replace("__PROOFAI_ACCESSED__:", ""))
+                        except Exception:
+                            pass
+                    elif line.startswith("__PROOFAI_COLS__:"):
+                        try:
+                            accessed_cols = json.loads(line.replace("__PROOFAI_COLS__:", ""))
+                        except Exception:
+                            pass
+                    elif line.startswith("__PROOFAI_OPS__:"):
+                        try:
+                            runtime_ops = json.loads(line.replace("__PROOFAI_OPS__:", ""))
                         except Exception:
                             pass
                     else:
@@ -120,6 +177,8 @@ atexit.register(_report_access)
                     "parsed_output": parsed_output,
                     "accessed_files": accessed_files,
                     "accessed_dataset_ids": accessed_dataset_ids,
+                    "accessed_columns": accessed_cols,
+                    "runtime_operations": runtime_ops,
                     "execution_mode": "local_isolated",
                     "error": None if res.returncode == 0 else f"Process exited with code {res.returncode}: {stderr}"
                 }
@@ -132,6 +191,8 @@ atexit.register(_report_access)
                     "parsed_output": None,
                     "accessed_files": [],
                     "accessed_dataset_ids": [],
+                    "accessed_columns": [],
+                    "runtime_operations": [],
                     "execution_mode": "local_isolated",
                     "error": f"Execution timed out after {self.limits.timeout_seconds} seconds."
                 }
@@ -144,6 +205,8 @@ atexit.register(_report_access)
                     "parsed_output": None,
                     "accessed_files": [],
                     "accessed_dataset_ids": [],
+                    "accessed_columns": [],
+                    "runtime_operations": [],
                     "execution_mode": "local_isolated",
                     "error": f"Execution failed: {str(e)}"
                 }

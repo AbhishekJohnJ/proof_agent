@@ -1,5 +1,6 @@
 from typing import Dict, Any, List, Optional
 from backend.models.analysis import CanonicalResult
+from backend.services.answer_renderer import AnswerRenderer
 
 class DataAnalystAgent:
     """Agent synthesizing human-readable final answers strictly matching canonical execution outputs."""
@@ -14,30 +15,19 @@ class DataAnalystAgent:
         evidence_items: List[Any],
         canonical_result: Optional[CanonicalResult] = None
     ) -> str:
-        # Priority 1: Use CanonicalResult if provided
         if canonical_result:
-            val = canonical_result.result
-            metric = canonical_result.metric or "value"
-            label = canonical_result.label
-            unit = canonical_result.unit
-
-            unit_prefix = "₹" if unit == "INR" else ("$" if unit == "USD" else ("€" if unit == "EUR" else ""))
-            unit_suffix = "%" if unit == "percent" else (f" {unit}" if unit and unit not in ["INR", "USD", "EUR"] else "")
-
-            if label:
-                return f"The highest {metric.replace('_', ' ')} is {label} with {unit_prefix}{val}{unit_suffix}."
-            else:
-                return f"The {metric.replace('_', ' ')} is {unit_prefix}{val}{unit_suffix}."
+            return AnswerRenderer.render_answer(canonical_result)
 
         parsed = execution_result.get("parsed_output", {})
         if isinstance(parsed, dict) and "result" in parsed:
-            val = parsed["result"]
-            metric = str(parsed.get("metric", "value"))
-            unit = parsed.get("unit")
-            unit_prefix = "₹" if unit == "INR" else ("$" if unit == "USD" else ("€" if unit == "EUR" else ""))
-            unit_suffix = "%" if unit == "percent" else (f" {unit}" if unit and unit not in ["INR", "USD", "EUR"] else "")
-
-            return f"The {metric.replace('_', ' ')} is {unit_prefix}{val}{unit_suffix}."
+            c_res = CanonicalResult(
+                result=parsed.get("result"),
+                metric=str(parsed.get("metric", "value")),
+                label=parsed.get("label"),
+                unit=parsed.get("unit"),
+                result_type=parsed.get("result_type", "scalar")
+            )
+            return AnswerRenderer.render_answer(c_res)
 
         stdout = execution_result.get("stdout")
         if stdout:

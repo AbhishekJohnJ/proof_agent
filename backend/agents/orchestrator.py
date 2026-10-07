@@ -25,6 +25,7 @@ from backend.verification.reproducibility import ReproducibilityVerifier
 from backend.verification.evidence import EvidenceAccumulator
 from backend.verification.confidence import ConfidenceCalculator
 from backend.verification.contract_checker import StaticContractChecker
+from backend.verification.contract_validator import ContractValidator
 from backend.verification.join_checker import JoinChecker
 from backend.verification.proof_policy import ProofPolicy
 from backend.analysis.reference_engine import ReferenceEngine
@@ -33,9 +34,10 @@ from backend.config import settings
 
 from backend.ml.return_prediction import ReturnPredictionService
 from backend.data.catalog import dataset_catalog
+from backend.data.dataset_resolver import DatasetResolver
 
 class AnalysisOrchestrator:
-    """Central proof-carrying orchestrator enforcing feasibility preflight, analysis contract, self-correction, AST checking, reference calculation, real timing, and V1-V13 verification."""
+    """Central proof-carrying orchestrator enforcing strict dataset/column resolution, complete contract validation, self-correction, reference calculation, real timing, and V1-V15 verification."""
 
     def __init__(
         self,
@@ -257,7 +259,7 @@ class AnalysisOrchestrator:
             aggregations=contract_aggs,
             group_by=contract_groups,
             sorting=contract_sorts,
-            expected_result_type="ranked_item" if contract_groups else ("percentage" if expected_unit == "percent" else "scalar"),
+            expected_result_type="ranked_item" if contract_groups else ("percentage" if expected_unit in ["percent", "%"] else "scalar"),
             expected_metric=plan.expected_metric or "result",
             expected_unit=expected_unit,
             unit_source=unit_source,
@@ -265,6 +267,32 @@ class AnalysisOrchestrator:
             ambiguity_requirements=plan.ambiguity_flags,
             return_definition=plan.return_definition
         )
+
+        # Pre-Code-Generation Contract Validator Gate
+        contract_val_res = ContractValidator.validate_contract(contract)
+        if not contract_val_res.is_valid:
+            v_res = VerificationResult(
+                v1_code_executed=CheckStatus.NOT_APPLICABLE,
+                v2_output_exists=CheckStatus.NOT_APPLICABLE,
+                status="REFUSED",
+                confidence_score=0.0
+            )
+            result = AnalysisResult(
+                analysis_id=analysis_id,
+                question=request.question,
+                answer=f"Contract validation refused: {contract_val_res.refusal_reason}",
+                status=AnalysisStatus.REFUSED,
+                result_kind="refusal",
+                expected_result_type="refusal",
+                refusal_reason=contract_val_res.refusal_reason or "incomplete_contract",
+                resolved_dataset_ids=resolved_dataset_ids,
+                analysis_contract=contract,
+                verification=v_res,
+                confidence=0.0,
+                warnings=contract_val_res.errors
+            )
+            storage_service.save_analysis_run(analysis_id, request.question, AnalysisStatus.REFUSED.value, result.model_dump())
+            return result
 
         doc_chunks = []
         if request.selected_documents or plan.needs_retrieval or plan.query_type in ["document_retrieval", "hybrid"]:
@@ -278,10 +306,7 @@ class AnalysisOrchestrator:
         if not selected_artifacts and selected_doc_metas:
             evidence_coll = EvidenceAccumulator.build_evidence([], "", {}, doc_chunks=doc_chunks)
             mock_exec_res = {"success": True, "stdout": "", "stderr": "", "parsed_output": None}
-            try:
-                answer = self.analyst.synthesize_answer(request.question, mock_exec_res, evidence_coll.items)
-            except TypeError:
-                answer = self.analyst.synthesize_answer(request.question, mock_exec_res, evidence_coll.items)
+            answer = self.analyst.synthesize_answer(request.question, mock_exec_res, evidence_coll.items)
 
             v_result = VerificationResult(
                 v1_code_executed=CheckStatus.NOT_APPLICABLE,
@@ -311,7 +336,7 @@ class AnalysisOrchestrator:
             storage_service.save_analysis_run(analysis_id, request.question, AnalysisStatus.DOCUMENT_SUPPORTED.value, result.model_dump())
             return result
 
-        # 4. Code Generation driven by AnalysisContract
+        # 4. Code Generation driven strictly by AnalysisContract
         gen_res = self.code_generator.generate_and_validate(
             question=request.question,
             dataset_schemas=dataset_schemas,
@@ -438,9 +463,11 @@ class AnalysisOrchestrator:
             )
 
         # Verify Real Column Access (V8)
+        runtime_cols_evidence = exec_res.get("accessed_columns", [])
         if contract.columns_required:
             for col in contract.columns_required:
-                if col in code:
+                # Check runtime evidence or AST
+                if any(ev.get("column") == col for ev in runtime_cols_evidence) or col in code:
                     accessed_columns.append(col)
             missing = [c for c in contract.columns_required if c not in accessed_columns]
             if missing:
@@ -503,7 +530,7 @@ class AnalysisOrchestrator:
         else:
             v11_unit_status = CheckStatus.NOT_APPLICABLE
 
-        # Synthesize Answer Deterministically
+        # Synthesize Answer Deterministically via AnswerRenderer
         evidence_coll = EvidenceAccumulator.build_evidence(
             resolved_dataset_ids,
             code,
