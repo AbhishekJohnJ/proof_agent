@@ -78,7 +78,7 @@ class DatasetResolver:
             }
 
             unit_metadata = getattr(artifact.metadata, "unit_metadata", {}) or {
-                "currency": "INR" if "order" in clean_id or "kaggle" in clean_id or "sales" in clean_id else None,
+                "currency": None,
                 "source": "dataset_manifest"
             }
 

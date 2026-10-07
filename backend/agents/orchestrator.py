@@ -99,8 +99,13 @@ class AnalysisOrchestrator:
         if table_ids:
             return list(dict.fromkeys(table_ids))
 
+        all_user_datasets = storage_service.list_datasets()
+        if all_user_datasets:
+            return [d.dataset_id for d in all_user_datasets]
+
         all_kaggle = dataset_catalog.list_datasets()
         return [d["dataset_id"] for d in all_kaggle]
+
 
     def process_analysis(self, request: AnalysisRequest) -> AnalysisResult:
         start_total = time.perf_counter()
