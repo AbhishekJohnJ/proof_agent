@@ -25,6 +25,12 @@ class ReproducibilityVerifier:
         out1 = initial_res.get("parsed_output")
         out2 = run2.get("parsed_output")
 
+        # Compare column access evidence across repeat runs
+        cols1 = set(c.get("column") for c in initial_res.get("accessed_columns", []) if isinstance(c, dict) and c.get("column"))
+        cols2 = set(c.get("column") for c in run2.get("accessed_columns", []) if isinstance(c, dict) and c.get("column"))
+        if cols1 and cols2 and cols1 != cols2:
+            return CheckStatus.FAIL, 0.0, "column_evidence_mismatch", [f"Reproducibility evidence mismatch: run1 accessed columns {cols1} but run2 accessed {cols2}."]
+
         if out1 is None or out2 is None:
             if initial_res.get("stdout") == run2.get("stdout"):
                 return CheckStatus.PASS, 0.0, "exact_stdout_match", []

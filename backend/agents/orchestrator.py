@@ -28,6 +28,7 @@ from backend.verification.contract_checker import StaticContractChecker
 from backend.verification.contract_validator import ContractValidator
 from backend.verification.join_checker import JoinChecker
 from backend.verification.proof_policy import ProofPolicy
+from backend.verification.operation_verifier import OperationVerifier
 from backend.analysis.reference_engine import ReferenceEngine
 from backend.services.storage import storage_service
 from backend.config import settings
@@ -436,6 +437,12 @@ class AnalysisOrchestrator:
         v7_ast, v8_ast, v9_ast, ast_errors = StaticContractChecker.check_contract(code, contract, resolved_dataset_ids)
         verification_errors.extend(ast_errors)
 
+        # Dynamic Runtime Operation Verifier (V9 semantic check)
+        op_ver_res = OperationVerifier.verify_operations(contract, exec_res.get("runtime_operations", []))
+        if not op_ver_res.is_valid:
+            v9_ast = CheckStatus.FAIL
+            verification_errors.extend(op_ver_res.errors)
+
         # Runtime Dataset Access Verification (V7 runtime check)
         accessed_dataset_ids = exec_res.get("accessed_dataset_ids", [])
         v7_runtime = CheckStatus.PASS
@@ -608,37 +615,48 @@ class AnalysisOrchestrator:
 
         # Structured Proof Trace with Real Measured Evidence
         proof_trace = {
+            "analysis_id": analysis_id,
             "question": request.question,
             "contract": contract.model_dump(),
-            "datasets_authorized": resolved_dataset_ids,
-            "datasets_accessed": accessed_dataset_ids,
-            "columns_accessed": list(set(accessed_columns)),
-            "operations_executed": [op.model_dump() for op in contract.operations] if contract.operations else [f"{j.left_dataset}.{j.left_column}={j.right_dataset}.{j.right_column}" for j in contract.joins],
-            "joins": [j.model_dump() for j in contract.joins],
-            "filters": [f.model_dump() for f in contract.filters],
-            "aggregations": [a.model_dump() for a in contract.aggregations],
-            "code": code,
+            "authorization": {
+                "datasets_authorized": resolved_dataset_ids,
+                "datasets_accessed": accessed_dataset_ids,
+                "unauthorized_access": len([ds for ds in accessed_dataset_ids if ds not in resolved_dataset_ids]) > 0
+            },
+            "runtime_evidence": {
+                "columns": list(set(accessed_columns)),
+                "operations": exec_res.get("runtime_operations", []),
+                "joins": join_evidence
+            },
             "execution": {
                 "success": exec_res.get("success", False),
                 "execution_ms": execution_ms,
                 "reference_ms": reference_ms,
                 "verification_ms": verification_ms,
-                "total_ms": total_ms,
-                "accessed_datasets": accessed_dataset_ids
+                "total_ms": total_ms
             },
             "canonical_result": canonical_res.model_dump() if canonical_res else None,
-            "reference_result": ref_res,
+            "reference": {
+                "result": ref_res,
+                "matches": reference_matches,
+                "reference_ms": reference_ms
+            },
             "reproducibility": {
                 "status": repro_status.value,
                 "method": repro_method,
-                "tolerance": repro_diff
+                "tolerance": repro_diff,
+                "matches": repro_status == CheckStatus.PASS
             },
             "data_quality": {
                 "performed": qual_performed,
                 "issues_found": qual_issues,
                 "critical": crit_qual_issues
             },
-            "verification_checks": v_result.model_dump(),
+            "security": {
+                "sandbox": exec_res.get("execution_mode", "local_isolated"),
+                "passed": exec_res.get("success", False)
+            },
+            "verification": v_result.model_dump(),
             "final_status": final_analysis_status.value
         }
 
