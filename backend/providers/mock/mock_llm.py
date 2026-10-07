@@ -13,10 +13,14 @@ class MockLLMProvider(LLMProvider):
     def _get_target_amount_col(self, dataset_schemas: List[Dict[str, Any]], target_ds_id: str) -> str:
         for s in dataset_schemas:
             s_id = s.get("dataset_id", "")
-            if target_ds_id and s_id and target_ds_id not in s_id and s_id not in target_ds_id:
-                continue
+            if target_ds_id and (target_ds_id in s_id or s_id in target_ds_id):
+                cols = [c.lower() for c in s.get("column_names", [])]
+                for candidate in ["revenue", "final_amount", "item_revenue", "sales_amount", "amount", "price"]:
+                    if candidate in cols:
+                        return candidate
+        for s in dataset_schemas:
             cols = [c.lower() for c in s.get("column_names", [])]
-            for candidate in ["final_amount", "item_revenue", "sales_amount", "revenue", "amount", "price"]:
+            for candidate in ["revenue", "final_amount", "item_revenue", "sales_amount", "amount", "price"]:
                 if candidate in cols:
                     return candidate
         return "final_amount"

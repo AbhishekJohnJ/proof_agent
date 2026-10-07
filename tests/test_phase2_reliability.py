@@ -165,7 +165,7 @@ def test_R_final_answer_numerical_mismatch_fails_v10():
 def test_V_model_unavailable_not_configured():
     old_llm_provider = settings.LLM_PROVIDER
     try:
-        settings.LLM_PROVIDER = "qwen"
+        settings.LLM_PROVIDER = "unconfigured_provider"
         orchestrator = get_orchestrator()
         req = AnalysisRequest(question="What is total revenue?", selected_datasets=["ds_dummy"])
         res = orchestrator.process_analysis(req)

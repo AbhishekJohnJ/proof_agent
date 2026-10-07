@@ -57,6 +57,15 @@ class QueryPlanner:
             elif isinstance(op, dict):
                 formatted_ops.append(op)
 
+        # Normalize group_by format (support string list or dict list)
+        raw_groups = plan_dict.get("group_by", [])
+        formatted_groups = []
+        for g in raw_groups:
+            if isinstance(g, str):
+                formatted_groups.append(g)
+            elif isinstance(g, dict):
+                formatted_groups.append(g.get("column", str(g)))
+
         return AnalysisPlan(
             query_type=plan_dict.get("query_type", "data_aggregation"),
             datasets_required=plan_dict.get("datasets_required", []),
@@ -66,7 +75,7 @@ class QueryPlanner:
             joins=plan_dict.get("joins", []),
             filters=plan_dict.get("filters", []),
             aggregations=plan_dict.get("aggregations", []),
-            group_by=plan_dict.get("group_by", []),
+            group_by=formatted_groups,
             sorting=plan_dict.get("sorting", []),
             needs_code=plan_dict.get("needs_code", True),
             needs_retrieval=plan_dict.get("needs_retrieval", False),

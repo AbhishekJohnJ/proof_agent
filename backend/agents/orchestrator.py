@@ -106,13 +106,33 @@ class AnalysisOrchestrator:
         start_total = time.perf_counter()
         analysis_id = f"ans_{uuid.uuid4().hex[:12]}"
 
-        # Model Not Configured Check
-        if settings.LLM_PROVIDER.lower() not in ["mock"] or settings.CODE_GEN_PROVIDER.lower() not in ["mock"]:
+        # Model Availability & Configuration Check
+        provider_name = settings.LLM_PROVIDER.lower()
+        code_provider_name = settings.CODE_GEN_PROVIDER.lower()
+
+        if provider_name in ["ollama", "qwen", "qwen3"] or code_provider_name in ["ollama", "deepseek", "deepseek-coder"]:
+            from backend.providers.ollama import OllamaClient
+            client = OllamaClient()
+            hc = client.health_check()
+            if not hc.get("available"):
+                v_res = VerificationResult(status="UNVERIFIED", confidence_score=0.0)
+                result = AnalysisResult(
+                    analysis_id=analysis_id,
+                    question=request.question,
+                    answer=f"Local AI provider unavailable. Ollama service is not running or unreachable at {hc.get('base_url', 'http://localhost:11434')}.",
+                    status=AnalysisStatus.MODEL_NOT_CONFIGURED,
+                    result_kind="model_not_configured",
+                    verification=v_res,
+                    confidence=0.0
+                )
+                storage_service.save_analysis_run(analysis_id, request.question, AnalysisStatus.MODEL_NOT_CONFIGURED.value, result.model_dump())
+                return result
+        elif provider_name != "mock" or code_provider_name != "mock":
             v_res = VerificationResult(status="UNVERIFIED", confidence_score=0.0)
             result = AnalysisResult(
                 analysis_id=analysis_id,
                 question=request.question,
-                answer="Configured AI model provider is pending GPU installation on this environment.",
+                answer=f"Configured model provider '{provider_name}' is not configured on this environment.",
                 status=AnalysisStatus.MODEL_NOT_CONFIGURED,
                 result_kind="model_not_configured",
                 verification=v_res,
@@ -226,6 +246,34 @@ class AnalysisOrchestrator:
 
         # 3. Construct Authoritative AnalysisPlan & Refine Resolved Datasets
         plan: AnalysisPlan = self.planner.create_plan(request.question, dataset_schemas, document_summaries)
+
+        if plan.is_unanswerable or plan.query_type == "unanswerable":
+            refusal_reason_str = plan.refusal_reason or "unanswerable_question"
+            v_res = VerificationResult(
+                v1_code_executed=CheckStatus.NOT_APPLICABLE,
+                v2_output_exists=CheckStatus.NOT_APPLICABLE,
+                v3_output_valid_canonical=CheckStatus.NOT_APPLICABLE,
+                v4_result_type_matched=CheckStatus.NOT_APPLICABLE,
+                v5_result_finite_valid=CheckStatus.NOT_APPLICABLE,
+                v6_reproducible=CheckStatus.NOT_APPLICABLE,
+                status="REFUSED",
+                confidence_score=0.0
+            )
+            result = AnalysisResult(
+                analysis_id=analysis_id,
+                question=request.question,
+                answer=f"Question refused: {refusal_reason_str}.",
+                status=AnalysisStatus.REFUSED,
+                result_kind="refusal",
+                expected_result_type="refusal",
+                refusal_reason=refusal_reason_str,
+                resolved_dataset_ids=initial_dataset_ids,
+                verification=v_res,
+                confidence=0.0,
+                warnings=plan.ambiguity_flags
+            )
+            storage_service.save_analysis_run(analysis_id, request.question, AnalysisStatus.REFUSED.value, result.model_dump())
+            return result
 
         resolved_dataset_ids = plan.datasets_required if plan.datasets_required else initial_dataset_ids
 
@@ -617,6 +665,16 @@ class AnalysisOrchestrator:
         proof_trace = {
             "analysis_id": analysis_id,
             "question": request.question,
+            "model_provenance": {
+                "planner": {
+                    "provider": settings.LLM_PROVIDER,
+                    "model": getattr(self.planner.llm_provider, "model_name", settings.LLM_MODEL)
+                },
+                "code_generator": {
+                    "provider": settings.CODE_GEN_PROVIDER,
+                    "model": getattr(self.code_generator.provider, "model_name", settings.CODE_MODEL)
+                }
+            },
             "contract": contract.model_dump(),
             "authorization": {
                 "datasets_authorized": resolved_dataset_ids,
